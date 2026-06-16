@@ -39,17 +39,23 @@ infra/
 | 경로 | 역할 |
 | --- | --- |
 | `terraform/envs/bootstrap-cost-guard` | AWS Budgets monthly cost guard |
+| `terraform/envs/aws-dev-ephemeral` | ECR과 NAT 없는 VPC-lite 기반의 짧은 AWS 데모 환경 |
 | `terraform/modules/budget` | budget 생성 module |
+| `terraform/modules/ecr` | backend/frontend image용 private ECR repositories |
+| `terraform/modules/vpc-lite` | NAT Gateway 없는 2 AZ public subnet VPC |
 
-`aws-dev-ephemeral`은 실제 EKS 데모를 위한 짧은 실행 환경이다. `aws-msk-proof`는
-Amazon MSK 연동 증명이 꼭 필요할 때만 별도로 사용한다.
+`aws-dev-ephemeral`은 실제 EKS 데모를 위한 짧은 실행 환경입니다. 현재는 비용이 커질 수
+있는 EKS, ALB, RDS, MSK, NAT Gateway를 만들지 않고 ECR과 VPC foundation만 정의합니다.
+`aws-msk-proof`는 Amazon MSK 연동 증명이 꼭 필요할 때만 별도로 사용합니다.
 
 ## 검증 명령
 
 ```bash
 terraform -chdir=infra/terraform/envs/bootstrap-cost-guard init -backend=false
+terraform -chdir=infra/terraform/envs/aws-dev-ephemeral init -backend=false
 terraform fmt -recursive
 terraform -chdir=infra/terraform/envs/bootstrap-cost-guard validate
+terraform -chdir=infra/terraform/envs/aws-dev-ephemeral validate
 tflint
 terraform plan
 ```

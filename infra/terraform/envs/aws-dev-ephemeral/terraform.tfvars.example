@@ -1,0 +1,18 @@
+aws_region   = "ap-northeast-2"
+project_name = "opspilot"
+environment  = "aws-dev"
+
+enable_ecr         = true
+enable_vpc         = true
+enable_eks         = false
+enable_alb         = false
+enable_rds         = false
+enable_msk         = false
+enable_nat_gateway = false
+
+default_ttl_hours = 4
+
+ecr_repository_names = [
+  "opspilot-backend",
+  "opspilot-frontend"
+]
