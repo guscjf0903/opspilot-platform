@@ -1,0 +1,30 @@
+name: Infra check
+
+on:
+  pull_request:
+    paths:
+      - "infra/terraform/**"
+      - ".github/workflows/infra-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive infra/terraform
+
+      - name: Terraform init
+        run: terraform -chdir=infra/terraform/envs/bootstrap-cost-guard init -backend=false
+
+      - name: Terraform validate
+        run: terraform -chdir=infra/terraform/envs/bootstrap-cost-guard validate

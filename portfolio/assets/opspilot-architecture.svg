@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">OpsPilot 시스템 아키텍처</title>
+  <desc id="desc">사용자는 Vue 대시보드에 접속하고 Spring Boot API는 Kubernetes, Prometheus, Kafka, OpenCost, AWS와 연동한다.</desc>
+  <rect width="1200" height="680" fill="#f8fafc"/>
+  <rect x="48" y="56" width="1104" height="568" rx="24" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+
+  <text x="86" y="112" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700" fill="#0f172a">OpsPilot 시스템 구조</text>
+  <text x="86" y="148" font-family="Inter, Arial, sans-serif" font-size="17" fill="#475569">운영 데이터를 수집하고, 관계도와 AI 분석으로 장애와 비용 낭비를 설명합니다.</text>
+
+  <rect x="86" y="254" width="194" height="112" rx="14" fill="#ecfeff" stroke="#0891b2" stroke-width="2"/>
+  <text x="122" y="303" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#164e63">사용자</text>
+  <text x="122" y="334" font-family="Inter, Arial, sans-serif" font-size="15" fill="#334155">Dashboard</text>
+
+  <rect x="360" y="214" width="220" height="192" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="392" y="264" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1e3a8a">Vue Web</text>
+  <text x="392" y="300" font-family="Inter, Arial, sans-serif" font-size="15" fill="#334155">Dashboard</text>
+  <text x="392" y="326" font-family="Inter, Arial, sans-serif" font-size="15" fill="#334155">Topology</text>
+  <text x="392" y="352" font-family="Inter, Arial, sans-serif" font-size="15" fill="#334155">Kafka / Cost / AI</text>
+
+  <rect x="660" y="214" width="230" height="192" rx="14" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="692" y="264" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#14532d">Spring Boot API</text>
+  <text x="692" y="300" font-family="Inter, Arial, sans-serif" font-size="15" fill="#334155">Application Service</text>
+  <text x="692" y="326" font-family="Inter, Arial, sans-serif" font-size="15" fill="#334155">Port / Adapter</text>
+  <text x="692" y="352" font-family="Inter, Arial, sans-serif" font-size="15" fill="#334155">Audit / Approval</text>
+
+  <rect x="970" y="104" width="142" height="70" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="996" y="134" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#7c2d12">Kubernetes</text>
+  <text x="997" y="156" font-family="Inter, Arial, sans-serif" font-size="13" fill="#334155">Pod / Event</text>
+
+  <rect x="970" y="200" width="142" height="70" rx="12" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+  <text x="998" y="230" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#713f12">Prometheus</text>
+  <text x="1004" y="252" font-family="Inter, Arial, sans-serif" font-size="13" fill="#334155">Metric</text>
+
+  <rect x="970" y="296" width="142" height="70" rx="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="1010" y="326" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#4c1d95">Kafka</text>
+  <text x="987" y="348" font-family="Inter, Arial, sans-serif" font-size="13" fill="#334155">Redpanda / MSK</text>
+
+  <rect x="970" y="392" width="142" height="70" rx="12" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+  <text x="1000" y="422" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#064e3b">OpenCost</text>
+  <text x="1012" y="444" font-family="Inter, Arial, sans-serif" font-size="13" fill="#334155">Cost</text>
+
+  <rect x="970" y="488" width="142" height="70" rx="12" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+  <text x="1008" y="518" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#334155">AWS</text>
+  <text x="988" y="540" font-family="Inter, Arial, sans-serif" font-size="13" fill="#334155">CloudWatch</text>
+
+  <rect x="660" y="478" width="230" height="70" rx="12" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+  <text x="710" y="509" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700" fill="#334155">PostgreSQL</text>
+  <text x="696" y="531" font-family="Inter, Arial, sans-serif" font-size="13" fill="#475569">분석 결과 / Audit Log</text>
+
+  <path d="M280 310 H344" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M580 310 H644" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M890 310 C928 310 932 139 958 139" stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M890 310 C928 310 932 235 958 235" stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M890 310 H958" stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M890 310 C928 310 932 427 958 427" stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M890 310 C928 310 932 523 958 523" stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M775 406 V464" stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+
+  <rect x="210" y="548" width="780" height="42" rx="21" fill="#0f172a"/>
+  <text x="255" y="575" font-family="Inter, Arial, sans-serif" font-size="16" fill="#f8fafc">Terraform과 Helm은 실제 EKS 데모를 재현하기 위한 배포 증거로 사용합니다.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+</svg>

@@ -1,0 +1,44 @@
+.DS_Store
+.idea/
+*.iml
+*.log
+
+# Local-only planning and AI agent context
+Docs/
+AGENTS.md
+**/AGENTS.md
+.git-root-backup-*/
+.subrepo-git-backups/
+
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+backend/.gradle/
+backend/build/
+
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+
+# Local tool caches
+**/.idea/
+**/.vscode/*
+!**/.vscode/extensions.json
+
+# Terraform local state and plans
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

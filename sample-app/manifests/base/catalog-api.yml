@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-api
+  namespace: sample-app
+  labels:
+    app.kubernetes.io/name: catalog-api
+    app.kubernetes.io/part-of: opspilot-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: catalog-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: catalog-api
+        app.kubernetes.io/part-of: opspilot-demo
+    spec:
+      containers:
+        - name: catalog-api
+          image: nginx:1.28-alpine
+          resources:
+            requests:
+              cpu: "1"
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 256Mi

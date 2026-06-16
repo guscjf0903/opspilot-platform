@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: opspilot-api
+  profiles:
+    default: local
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: never
+
+info:
+  app:
+    name: OpsPilot API
+    phase: 7
+
+opspilot:
+  kubernetes:
+    cluster-id: local
+    display-name: local
+    provider: local
+  kafka:
+    enabled: true
+    mode: admin
+    bootstrap-servers: localhost:19092
+    request-timeout: 3s
+    warning-lag-threshold: 100
+    critical-lag-threshold: 1000

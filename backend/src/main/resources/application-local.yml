@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${DB_NAME:opspilot}
+    username: ${DB_USERNAME:opspilot}
+    password: ${DB_PASSWORD}
+
+opspilot:
+  kubernetes:
+    mode: kubeconfig
+  prometheus:
+    base-url: http://localhost:9090
+  kafka:
+    enabled: true
+    mode: admin
+    bootstrap-servers: localhost:${REDPANDA_HOST_KAFKA_PORT:19092}
+  opencost:
+    enabled: false
+    base-url: http://localhost:9003
+    allocation-window: 1d
+    allocation-resolution: 1m
+    share-idle: true
+    allocation-window-hours: 24
+    monthly-hours: 730
+  aws:
+    enabled: false
+  ai:
+    provider: ${AI_PROVIDER:stub}
+    openai:
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+      api-key: ${OPENAI_API_KEY:}
+      model: ${OPENAI_MODEL:gpt-5.4-mini}
+      reasoning-effort: ${OPENAI_REASONING_EFFORT:low}
+      max-output-tokens: ${OPENAI_MAX_OUTPUT_TOKENS:1200}

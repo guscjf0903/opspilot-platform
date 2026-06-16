@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="OpsPilot은 Kubernetes, AWS, Kafka 리소스를 통합 관측하고 AI 기반 장애 분석과 비용 최적화 추천을 제공하는 CloudOps 포트폴리오입니다."
+    />
+    <title>OpsPilot | Kubernetes, AWS, Kafka 운영 플랫폼</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="OpsPilot 홈">OpsPilot</a>
+      <nav class="nav" aria-label="주요 메뉴">
+        <a href="#overview">개요</a>
+        <a href="#demo">데모 흐름</a>
+        <a href="#architecture">아키텍처</a>
+        <a href="#deployment">배포 전략</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">AI 기반 CloudOps 포트폴리오</p>
+          <h1>OpsPilot</h1>
+          <p class="lead">
+            Kubernetes, AWS, Kafka 상태를 한곳에서 보고, 객체 관계도와 근거 기반 AI
+            분석으로 장애 원인과 비용 낭비 지점을 빠르게 찾는 운영 플랫폼입니다.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="./demo/">OpsPilot 데모 열기</a>
+            <a class="button secondary" href="#architecture">구조 보기</a>
+          </div>
+        </div>
+        <figure class="hero-visual" aria-label="OpsPilot 시스템 아키텍처">
+          <img src="./assets/opspilot-architecture.svg" alt="OpsPilot 시스템 아키텍처 다이어그램" />
+        </figure>
+      </section>
+
+      <section id="overview" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">무엇을 보여주는 프로젝트인가</p>
+          <h2>단순 모니터링이 아니라 운영 판단 흐름을 보여줍니다</h2>
+        </div>
+        <div class="mode-grid">
+          <article class="mode-card">
+            <h3>Kubernetes 관계도</h3>
+            <p>
+              Deployment, ReplicaSet, Pod, Service, EndpointSlice, PVC, Node 관계를 그래프로
+              연결해 장애 영향 범위를 확인합니다.
+            </p>
+            <span>목록이 아니라 관계 중심으로 보기</span>
+          </article>
+          <article class="mode-card">
+            <h3>Kafka 병목 관측</h3>
+            <p>
+              topic, partition, consumer group, lag를 workload와 연결해 비동기 처리 지연을
+              애플리케이션 맥락에서 추적합니다.
+            </p>
+            <span>Redpanda와 MSK 모두 확장 가능</span>
+          </article>
+          <article class="mode-card">
+            <h3>AI 장애 분석</h3>
+            <p>
+              event, log, metric, rollout history, Kafka lag를 근거로 원인 후보와 조치안을
+              제시하되 직접 운영 조치는 실행하지 않습니다.
+            </p>
+            <span>근거 기반 분석과 안전한 승인 흐름</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="demo" class="section split">
+        <div>
+          <p class="eyebrow">핵심 데모 흐름</p>
+          <h2>장애 감지부터 안전 조치까지</h2>
+        </div>
+        <ol class="timeline">
+          <li>Dashboard에서 비정상 workload, warning event, Kafka lag를 확인합니다.</li>
+          <li>Topology에서 Service, Pod, PVC, Node, Kafka Topic 관계를 따라갑니다.</li>
+          <li>AI 분석에서 metric, event, log, rollout, lag 근거를 확인합니다.</li>
+          <li>Cost 화면에서 request 대비 실제 사용량과 idle resource를 비교합니다.</li>
+          <li>운영 조치는 dry-run, diff, 승인, audit log를 거쳐 실행합니다.</li>
+        </ol>
+        <a class="inline-demo-link" href="./demo/">정적 데모 앱에서 직접 보기</a>
+      </section>
+
+      <section id="architecture" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">시스템 구조</p>
+          <h2>OpsPilot은 Kubernetes 안팎에서 실행될 수 있는 관측 도구입니다</h2>
+        </div>
+        <div class="guard-grid">
+          <div class="guard-item">
+            <strong>Frontend</strong>
+            <p>Vue 3 SPA가 Dashboard, Topology, Kafka, Cost, Incident 화면을 제공합니다.</p>
+          </div>
+          <div class="guard-item">
+            <strong>Backend</strong>
+            <p>Spring Boot API가 Kubernetes, Prometheus, Kafka, OpenCost, AWS Adapter를 조율합니다.</p>
+          </div>
+          <div class="guard-item">
+            <strong>Data</strong>
+            <p>PostgreSQL에는 사용자, snapshot, 분석 결과, 추천, audit log를 저장합니다.</p>
+          </div>
+          <div class="guard-item">
+            <strong>External Systems</strong>
+            <p>Kubernetes API, Redpanda/MSK, CloudWatch, Cost Explorer를 port/adapter로 분리합니다.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="deployment" class="section split">
+        <div>
+          <p class="eyebrow">저비용 배포 전략</p>
+          <h2>인프라는 포트폴리오를 보완하는 증거로만 사용합니다</h2>
+        </div>
+        <ul class="checklist">
+          <li>상시 공개는 GitHub Pages 정적 페이지로 처리해 AWS 비용을 만들지 않습니다.</li>
+          <li>AWS Budgets를 먼저 설정하고, EKS/ALB/RDS/MSK/NAT Gateway는 기본 비활성으로 둡니다.</li>
+          <li>실제 EKS 데모는 Terraform으로 짧게 만들고 Helm으로 배포한 뒤 제거합니다.</li>
+          <li>Kafka는 기본 Redpanda로 비용을 줄이고, MSK는 필요할 때만 proof 모드로 검증합니다.</li>
+          <li>외부 방문자는 read-only 화면만 보며 운영 action endpoint는 공개하지 않습니다.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>OpsPilot</span>
+      <span>Kubernetes, AWS, Kafka, AI 장애 분석, 비용 최적화.</span>
+    </footer>
+  </body>
+</html>

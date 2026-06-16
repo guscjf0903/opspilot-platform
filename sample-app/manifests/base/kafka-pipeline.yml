@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-producer
+  namespace: sample-app
+  labels:
+    app.kubernetes.io/name: order-producer
+    app.kubernetes.io/part-of: opspilot-demo
+  annotations:
+    opspilot.io/kafka-direction: produce
+    opspilot.io/kafka-topics: orders.created
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: order-producer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: order-producer
+        app.kubernetes.io/part-of: opspilot-demo
+    spec:
+      containers:
+        - name: producer
+          image: docker.redpanda.com/redpandadata/redpanda:v26.1.9
+          command:
+            - sh
+            - -c
+            - |
+              while true; do
+                echo "{\"orderId\":\"demo-$(date +%s)\"}" |
+                  rpk topic produce orders.created -X brokers=host.docker.internal:9092
+                sleep 2
+              done
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-consumer
+  namespace: sample-app
+  labels:
+    app.kubernetes.io/name: order-consumer
+    app.kubernetes.io/part-of: opspilot-demo
+  annotations:
+    opspilot.io/kafka-consumer-group: order-consumer
+    opspilot.io/kafka-direction: consume
+    opspilot.io/kafka-topics: orders.created
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: order-consumer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: order-consumer
+        app.kubernetes.io/part-of: opspilot-demo
+    spec:
+      terminationGracePeriodSeconds: 1
+      containers:
+        - name: consumer
+          image: docker.redpanda.com/redpandadata/redpanda:v26.1.9
+          command:
+            - sh
+            - -c
+            - |
+              until rpk topic consume orders.created \
+                -X brokers=host.docker.internal:9092 \
+                --group=order-consumer \
+                --offset=start; do
+                sleep 5
+              done
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi

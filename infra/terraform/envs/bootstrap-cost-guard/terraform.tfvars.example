@@ -1,0 +1,7 @@
+aws_region         = "ap-northeast-2"
+project_name       = "opspilot"
+environment        = "bootstrap"
+monthly_budget_usd = 5
+
+# Replace with an email address you can confirm in AWS Budgets.
+alert_emails = ["you@example.com"]

@@ -1,0 +1,282 @@
+:root {
+  color-scheme: light;
+  --ink: #0f172a;
+  --muted: #475569;
+  --line: #cbd5e1;
+  --paper: #ffffff;
+  --wash: #f8fafc;
+  --cyan: #0e7490;
+  --green: #15803d;
+  --orange: #c2410c;
+  --button: #111827;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--wash);
+  color: var(--ink);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+.site-header {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  min-height: 68px;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.nav {
+  display: flex;
+  gap: 24px;
+}
+
+.nav a {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.hero {
+  align-items: center;
+  display: grid;
+  gap: 40px;
+  grid-template-columns: minmax(300px, 0.78fr) minmax(420px, 1.22fr);
+  min-height: calc(100vh - 68px);
+  padding: 56px 6vw 40px;
+}
+
+.hero-copy {
+  max-width: 620px;
+}
+
+.eyebrow {
+  color: var(--cyan);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin: 0 0 14px;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: clamp(48px, 8vw, 96px);
+  line-height: 0.95;
+  margin-bottom: 24px;
+}
+
+h2 {
+  font-size: 36px;
+  line-height: 1.08;
+  margin-bottom: 16px;
+}
+
+h3 {
+  font-size: 20px;
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+
+.lead {
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1.55;
+  margin-bottom: 28px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.button {
+  align-items: center;
+  border-radius: 8px;
+  display: inline-flex;
+  font-weight: 750;
+  min-height: 44px;
+  padding: 0 18px;
+  text-decoration: none;
+}
+
+.button.primary {
+  background: var(--button);
+  color: #ffffff;
+}
+
+.button.secondary {
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.hero-visual {
+  margin: 0;
+}
+
+.hero-visual img {
+  border: 1px solid var(--line);
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.section {
+  padding: 64px 6vw;
+}
+
+.section-heading {
+  max-width: 760px;
+}
+
+.mode-grid,
+.guard-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 28px;
+}
+
+.mode-card,
+.guard-item {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  min-height: 210px;
+  padding: 24px;
+}
+
+.mode-card p,
+.guard-item p,
+.timeline,
+.checklist {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.mode-card span {
+  color: var(--green);
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  margin-top: 24px;
+}
+
+.split {
+  align-items: start;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 42px;
+  grid-template-columns: minmax(260px, 0.7fr) minmax(320px, 1fr);
+}
+
+.timeline,
+.checklist {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.timeline li,
+.checklist li {
+  margin-bottom: 12px;
+}
+
+.inline-demo-link {
+  align-self: start;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  display: inline-flex;
+  font-weight: 750;
+  min-height: 44px;
+  padding: 11px 16px;
+  text-decoration: none;
+}
+
+.guard-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.guard-item {
+  min-height: 184px;
+}
+
+.guard-item strong {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+
+.footer {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 28px 6vw;
+}
+
+.footer span:first-child {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px 20px;
+  }
+
+  .nav {
+    flex-wrap: wrap;
+    gap: 12px 18px;
+  }
+
+  .hero,
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: auto;
+    padding-top: 42px;
+  }
+
+  .mode-grid,
+  .guard-grid {
+    grid-template-columns: 1fr;
+  }
+}

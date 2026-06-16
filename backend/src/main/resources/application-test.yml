@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///opspilot-test
+    username: opspilot
+    password: opspilot-test
+
+opspilot:
+  kubernetes:
+    mode: mock
+  prometheus:
+    base-url: http://localhost:9090
+  kafka:
+    enabled: true
+    mode: fake
+  opencost:
+    enabled: false
+  aws:
+    enabled: false
+  ai:
+    provider: stub

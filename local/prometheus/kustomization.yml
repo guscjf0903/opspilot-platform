@@ -1,0 +1,11 @@
+resources:
+  - namespace.yml
+  - prometheus-rbac.yml
+  - prometheus-config.yml
+  - prometheus-deployment.yml
+  - prometheus-service.yml
+  - kube-state-metrics-rbac.yml
+  - kube-state-metrics-deployment.yml
+  - kube-state-metrics-service.yml
+  - node-exporter-daemonset.yml
+  - node-exporter-service.yml

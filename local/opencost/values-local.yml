@@ -1,0 +1,41 @@
+opencost:
+  prometheus:
+    internal:
+      namespaceName: monitoring
+      serviceName: prometheus
+      port: 9090
+
+  exporter:
+    defaultClusterId: local-kind
+    replicas: 1
+    persistence:
+      enabled: false
+    resources:
+      requests:
+        cpu: "10m"
+        memory: "55Mi"
+      limits:
+        memory: "512Mi"
+
+  customPricing:
+    enabled: true
+    provider: custom
+    costModel:
+      description: OpsPilot local kind demo pricing.
+      CPU: 24.00
+      spotCPU: 24.00
+      RAM: 3.00
+      spotRAM: 3.00
+      GPU: 0
+      storage: 0.00005479452
+      zoneNetworkEgress: 0
+      regionNetworkEgress: 0
+      internetNetworkEgress: 0
+
+  metrics:
+    kubeStateMetrics:
+      emitKsmV1Metrics: false
+      emitKsmV1MetricsOnly: false
+
+  ui:
+    enabled: true

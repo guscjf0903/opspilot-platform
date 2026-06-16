@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: sample-app
+spec:
+  template:
+    spec:
+      containers:
+        - name: worker
+          command: ["sh", "-c", "echo 'simulated worker crash' >&2; exit 1"]
