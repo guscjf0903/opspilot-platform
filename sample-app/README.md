@@ -1,4 +1,4 @@
-# Sample app
+# 샘플 앱
 
 `sample-app` namespace에는 OpsPilot 데모를 위한 작은 workload가 있습니다.
 

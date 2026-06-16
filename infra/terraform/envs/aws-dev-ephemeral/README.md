@@ -1,17 +1,17 @@
-# AWS Dev Ephemeral
+# AWS 개발용 임시 환경
 
-This environment is the short-lived AWS demo foundation for OpsPilot.
+이 환경은 OpsPilot을 AWS에서 짧게 시연하기 위한 Mode B 기반 구성입니다.
 
-Current scope:
+현재 범위:
 
-- Private ECR repositories for backend and frontend images.
-- A small VPC with 2 public subnets.
-- No NAT Gateway.
-- No EKS, ALB, RDS, or MSK yet.
+- 백엔드와 프론트엔드 이미지를 저장할 private ECR 저장소
+- 2개 public subnet을 가진 작은 VPC
+- NAT Gateway 없음
+- EKS, ALB, RDS, MSK는 아직 생성하지 않음
 
-The goal is to prepare low-cost building blocks before adding expensive demo resources.
+목표는 비용이 큰 리소스를 추가하기 전에, 저비용 기반 블록을 먼저 준비하는 것입니다.
 
-## Safety Defaults
+## 안전 기본값
 
 ```text
 enable_ecr         = true
@@ -24,9 +24,9 @@ enable_nat_gateway = false
 default_ttl_hours  = 4
 ```
 
-Do not run `terraform apply` until the AWS account, monthly budget, and expected destroy time are confirmed.
+AWS 계정, 월 예산, 예상 종료 시간을 확인하기 전에는 `terraform apply`를 실행하지 않습니다.
 
-## Validate
+## 검증
 
 ```bash
 terraform -chdir=infra/terraform/envs/aws-dev-ephemeral init -backend=false

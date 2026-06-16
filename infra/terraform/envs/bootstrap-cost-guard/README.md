@@ -1,30 +1,30 @@
-# Bootstrap Cost Guard
+# 비용 가드 부트스트랩
 
-This is the first Terraform environment to run for OpsPilot AWS work.
+OpsPilot AWS 작업을 시작하기 전에 가장 먼저 실행하는 Terraform 환경입니다.
 
-It creates only AWS Budgets notifications. It does not create EKS, EC2, ALB,
-RDS, MSK, NAT Gateway, Route53, or any runtime workload.
+이 환경은 AWS Budgets 알림만 생성합니다. EKS, EC2, ALB, RDS, MSK, NAT Gateway,
+Route53, 실제 workload는 생성하지 않습니다.
 
-## When to use
+## 언제 사용하는가
 
-Run this before creating any other AWS resources.
+다른 AWS 리소스를 만들기 전에 먼저 실행합니다.
 
-## Setup
+## 설정
 
 ```bash
 cd infra/terraform/envs/bootstrap-cost-guard
 cp terraform.tfvars.example terraform.tfvars
 ```
 
-Edit `terraform.tfvars` and set a real email address.
+`terraform.tfvars`에 실제 알림 이메일을 넣습니다.
 
 ```hcl
 alert_emails = ["you@example.com"]
 ```
 
-Do not commit `terraform.tfvars`.
+`terraform.tfvars`는 commit하지 않습니다.
 
-## Validate
+## 검증
 
 ```bash
 terraform init -backend=false
@@ -33,9 +33,9 @@ terraform validate
 terraform plan
 ```
 
-## Apply policy
+## 적용 정책
 
-Only run `terraform apply` after a human review of the plan output.
+`terraform apply`는 plan 결과를 사람이 확인한 뒤에만 실행합니다.
 
-This environment is safe by design, but it still creates an AWS account-level
-budget notification. Keep the approval habit from the first step.
+이 환경은 의도적으로 안전하게 작게 만들었지만, 그래도 AWS 계정 단위 예산 알림을
+생성합니다. 첫 단계부터 승인 습관을 유지합니다.

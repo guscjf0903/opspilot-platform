@@ -1,0 +1,93 @@
+name: Container images
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/container-images.yml"
+  workflow_dispatch:
+    inputs:
+      push_to_ecr:
+        description: "ECR로 이미지를 push합니다. AWS role secret이 필요합니다."
+        type: boolean
+        default: false
+      frontend_api_base_url:
+        description: "프론트엔드 이미지 빌드에 사용할 API base URL입니다."
+        type: string
+        default: "/api"
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ap-northeast-2
+  FRONTEND_API_BASE_URL: ${{ github.event.inputs.frontend_api_base_url || '/api' }}
+
+jobs:
+  docker:
+    name: Docker image build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: backend
+            context: backend
+            dockerfile: backend/Dockerfile
+            repository: opspilot-backend
+          - name: frontend
+            context: frontend
+            dockerfile: frontend/Dockerfile
+            repository: opspilot-frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: false
+          tags: ${{ matrix.repository }}:ci-${{ github.sha }}
+          build-args: |
+            VITE_API_BASE_URL=${{ env.FRONTEND_API_BASE_URL }}
+            VITE_APP_ENV=aws-dev
+            VITE_DEMO_MODE=false
+            VITE_PUBLIC_BASE_PATH=/
+            VITE_ROUTER_HISTORY=web
+
+      - name: Configure AWS credentials
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.push_to_ecr == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+
+      - name: Login to Amazon ECR
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.push_to_ecr == 'true' }}
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Push image to ECR
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.push_to_ecr == 'true' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ matrix.repository }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ matrix.repository }}:latest
+          build-args: |
+            VITE_API_BASE_URL=${{ env.FRONTEND_API_BASE_URL }}
+            VITE_APP_ENV=aws-dev
+            VITE_DEMO_MODE=false
+            VITE_PUBLIC_BASE_PATH=/
+            VITE_ROUTER_HISTORY=web

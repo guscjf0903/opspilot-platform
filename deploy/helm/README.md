@@ -1,16 +1,16 @@
-# Helm Deployment Plan
+# Helm 배포 계획
 
 이 디렉토리는 OpsPilot과 sample-app을 Kubernetes에 재현 가능하게 배포하기 위한
-Helm chart를 둘 위치다.
+Helm chart를 둘 위치입니다.
 
 ## Chart 원칙
 
-- `values.yaml`은 안전하고 저비용인 기본값만 가진다.
-- `values-local-kind.yaml`은 로컬 kind 검증용이다.
-- `values-aws-dev-ephemeral.yaml`은 짧게 켜는 AWS EKS 데모용이다.
-- public ingress는 기본적으로 꺼둔다.
-- 외부 방문자용 demo에서는 action API를 비활성화하거나 Viewer 권한만 허용한다.
-- Secret 값은 values 파일에 직접 넣지 않고 Kubernetes Secret 또는 AWS Secrets Manager 참조로 주입한다.
+- `values.yaml`은 안전하고 저비용인 기본값만 가집니다.
+- `values-local-kind.yaml`은 로컬 kind 검증용입니다.
+- `values-aws-dev-ephemeral.yaml`은 짧게 켜는 AWS EKS 데모용입니다.
+- public ingress는 기본적으로 꺼둡니다.
+- 외부 방문자용 demo에서는 action API를 비활성화하거나 Viewer 권한만 허용합니다.
+- Secret 값은 values 파일에 직접 넣지 않고 Kubernetes Secret 또는 AWS Secrets Manager 참조로 주입합니다.
 
 ## 예정 chart
 

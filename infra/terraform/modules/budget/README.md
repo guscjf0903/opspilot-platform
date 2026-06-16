@@ -1,24 +1,24 @@
-# Budget Module
+# Budget 모듈
 
-Creates a low-cost AWS Budgets guardrail for OpsPilot portfolio environments.
+OpsPilot 포트폴리오 환경을 위한 저비용 AWS Budgets 가드레일을 생성합니다.
 
-This module is intentionally small. It does not create EKS, RDS, ALB, NAT
-Gateway, MSK, or any runtime infrastructure. Apply it before any other AWS
-environment so cost notifications are already active.
+이 모듈은 의도적으로 작게 유지합니다. EKS, RDS, ALB, NAT Gateway, MSK 또는 실제
+runtime 인프라는 만들지 않습니다. 다른 AWS 환경을 만들기 전에 먼저 적용해서 비용
+알림이 이미 켜져 있도록 합니다.
 
-## Inputs
+## 입력값
 
-| Name | Purpose |
+| 이름 | 목적 |
 | --- | --- |
-| `budget_name` | Monthly budget name |
-| `monthly_limit_usd` | Monthly cost limit in USD |
-| `alert_emails` | Email recipients for budget notifications |
-| `actual_thresholds_percent` | Actual spend thresholds |
-| `forecasted_thresholds_percent` | Forecasted spend thresholds |
-| `tags` | Common ownership and cost tags |
+| `budget_name` | 월 예산 이름 |
+| `monthly_limit_usd` | 월 비용 한도 |
+| `alert_emails` | 예산 알림을 받을 이메일 |
+| `actual_thresholds_percent` | 실제 사용액 기준 알림 임계값 |
+| `forecasted_thresholds_percent` | 예상 사용액 기준 알림 임계값 |
+| `tags` | 공통 소유권과 비용 태그 |
 
-## Notes
+## 주의
 
-- Do not put AWS credentials in Terraform files.
-- Do not commit `terraform.tfvars`.
-- Run `terraform plan` first and review the output before apply.
+- AWS credential을 Terraform 파일에 넣지 않습니다.
+- `terraform.tfvars`를 commit하지 않습니다.
+- 항상 `terraform plan`을 먼저 실행하고 결과를 검토한 뒤 적용합니다.

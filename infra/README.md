@@ -1,4 +1,4 @@
-# Infrastructure
+# 인프라
 
 OpsPilot 인프라는 개인 포트폴리오용 저비용 구성을 우선합니다. 실제 AWS 리소스는
 항상 켜두지 않고, 데모 목적이 있을 때 짧게 생성한 뒤 제거합니다.
@@ -8,7 +8,7 @@ OpsPilot 인프라는 개인 포트폴리오용 저비용 구성을 우선합니
 
 ## 기본 원칙
 
-- EKS, ALB, RDS, MSK, NAT Gateway는 기본 비활성으로 설계한다.
+- EKS, ALB, RDS, MSK, NAT Gateway는 기본 비활성으로 설계합니다.
 - Terraform `apply`와 `destroy`는 명시적으로 확인한 뒤 실행합니다.
 - AWS Budgets와 billing alert를 먼저 설정합니다.
 - Terraform state, plan, credential, secret은 commit하지 않습니다.
@@ -38,10 +38,10 @@ infra/
 
 | 경로 | 역할 |
 | --- | --- |
-| `terraform/envs/bootstrap-cost-guard` | AWS Budgets monthly cost guard |
+| `terraform/envs/bootstrap-cost-guard` | AWS Budgets 월 비용 가드 |
 | `terraform/envs/aws-dev-ephemeral` | ECR과 NAT 없는 VPC-lite 기반의 짧은 AWS 데모 환경 |
-| `terraform/modules/budget` | budget 생성 module |
-| `terraform/modules/ecr` | backend/frontend image용 private ECR repositories |
+| `terraform/modules/budget` | 예산 알림 생성 모듈 |
+| `terraform/modules/ecr` | 백엔드와 프론트엔드 image용 private ECR repository |
 | `terraform/modules/vpc-lite` | NAT Gateway 없는 2 AZ public subnet VPC |
 
 `aws-dev-ephemeral`은 실제 EKS 데모를 위한 짧은 실행 환경입니다. 현재는 비용이 커질 수
