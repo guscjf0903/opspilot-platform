@@ -22,12 +22,12 @@ module "ecr" {
   count  = var.enable_ecr ? 1 : 0
   source = "../../modules/ecr"
 
-  repository_names              = var.ecr_repository_names
-  image_tag_mutability          = var.ecr_image_tag_mutability
-  scan_on_push                  = var.ecr_scan_on_push
-  expire_untagged_after_days    = var.ecr_expire_untagged_after_days
-  keep_recent_images            = var.ecr_keep_recent_images
-  tags                          = local.common_tags
+  repository_names           = var.ecr_repository_names
+  image_tag_mutability       = var.ecr_image_tag_mutability
+  scan_on_push               = var.ecr_scan_on_push
+  expire_untagged_after_days = var.ecr_expire_untagged_after_days
+  keep_recent_images         = var.ecr_keep_recent_images
+  tags                       = local.common_tags
 }
 
 module "github_actions_ecr_push_role" {
