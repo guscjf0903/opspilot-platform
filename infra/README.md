@@ -42,10 +42,13 @@ infra/
 | `terraform/envs/aws-dev-ephemeral` | ECR과 NAT 없는 VPC-lite 기반의 짧은 AWS 데모 환경 |
 | `terraform/modules/budget` | 예산 알림 생성 모듈 |
 | `terraform/modules/ecr` | 백엔드와 프론트엔드 image용 private ECR repository |
+| `terraform/modules/github-actions-ecr-push-role` | GitHub OIDC 기반 ECR push 전용 IAM Role |
 | `terraform/modules/vpc-lite` | NAT Gateway 없는 2 AZ public subnet VPC |
 
 `aws-dev-ephemeral`은 실제 EKS 데모를 위한 짧은 실행 환경입니다. 현재는 비용이 커질 수
 있는 EKS, ALB, RDS, MSK, NAT Gateway를 만들지 않고 ECR과 VPC foundation만 정의합니다.
+GitHub Actions용 IAM Role은 AWS access key 없이 ECR push만 허용하며, Terraform apply나
+EKS 생성 권한은 부여하지 않습니다.
 `aws-msk-proof`는 Amazon MSK 연동 증명이 꼭 필요할 때만 별도로 사용합니다.
 
 ## 검증 명령

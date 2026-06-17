@@ -70,6 +70,7 @@ source를 `GitHub Actions`로 설정해야 공개 URL이 생성됩니다.
 `Container images`는 PR에서 Docker 이미지 빌드만 검증합니다. ECR push는
 `workflow_dispatch`에서 `push_to_ecr=true`를 직접 선택하고, GitHub 저장소 secret
 `AWS_GITHUB_ACTIONS_ROLE_ARN`이 설정되어 있을 때만 실행됩니다.
+이 secret에는 AWS access key가 아니라 Terraform이 만든 IAM Role ARN만 저장합니다.
 
 ## 컨테이너 이미지
 
@@ -84,7 +85,16 @@ source를 `GitHub Actions`로 설정해야 공개 URL이 생성됩니다.
 ECR push를 사용하려면 먼저 Terraform의 `aws-dev-ephemeral` 환경으로 ECR repository를
 준비하고, GitHub 저장소 secret에 `AWS_GITHUB_ACTIONS_ROLE_ARN`을 설정해야 합니다.
 이 워크플로우는 `terraform apply`를 실행하지 않으며, ECR push도 수동 입력 없이는 실행하지
-않습니다.
+않습니다. 이미지는 ECR의 immutable tag 정책과 충돌하지 않도록 commit SHA tag로만 push합니다.
+
+```bash
+terraform -chdir=infra/terraform/envs/aws-dev-ephemeral output github_actions_ecr_push_role_arn
+```
+
+위 출력값을 GitHub repository secret `AWS_GITHUB_ACTIONS_ROLE_ARN`에 등록하면, GitHub
+Actions는 짧은 시간 동안만 유효한 OIDC 토큰으로 Role을 빌려 ECR에 이미지를 올립니다.
+기본 trust policy는 `guscjf0903/opspilot-platform` 저장소의 `main` branch workflow만
+허용합니다.
 
 ## 사전 준비
 

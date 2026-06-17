@@ -69,6 +69,12 @@ variable "enable_nat_gateway" {
   default     = false
 }
 
+variable "enable_github_actions_ecr_push_role" {
+  description = "Create a GitHub OIDC IAM role that can push images only to the OpsPilot ECR repositories."
+  type        = bool
+  default     = true
+}
+
 variable "ecr_repository_names" {
   description = "Private ECR repositories for OpsPilot images."
   type        = list(string)
@@ -102,6 +108,35 @@ variable "ecr_keep_recent_images" {
   description = "Number of recent ECR images to keep."
   type        = number
   default     = 5
+}
+
+variable "github_actions_ecr_push_role_name" {
+  description = "IAM role name for GitHub Actions ECR push."
+  type        = string
+  default     = "opspilot-aws-dev-github-actions-ecr-push"
+}
+
+variable "create_github_oidc_provider" {
+  description = "Create GitHub Actions OIDC provider. Set false when the AWS account already has one."
+  type        = bool
+  default     = true
+}
+
+variable "existing_github_oidc_provider_arn" {
+  description = "Existing GitHub Actions OIDC provider ARN when create_github_oidc_provider is false."
+  type        = string
+  default     = ""
+}
+
+variable "github_actions_allowed_subject_patterns" {
+  description = "GitHub OIDC sub patterns that can assume the ECR push role."
+  type        = list(string)
+  default     = ["repo:guscjf0903/opspilot-platform:ref:refs/heads/main"]
+
+  validation {
+    condition     = length(var.github_actions_allowed_subject_patterns) > 0
+    error_message = "github_actions_allowed_subject_patterns must contain at least one subject pattern."
+  }
 }
 
 variable "vpc_cidr_block" {

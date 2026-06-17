@@ -30,6 +30,18 @@ module "ecr" {
   tags                          = local.common_tags
 }
 
+module "github_actions_ecr_push_role" {
+  count  = var.enable_github_actions_ecr_push_role && var.enable_ecr ? 1 : 0
+  source = "../../modules/github-actions-ecr-push-role"
+
+  role_name                  = var.github_actions_ecr_push_role_name
+  create_oidc_provider       = var.create_github_oidc_provider
+  existing_oidc_provider_arn = var.existing_github_oidc_provider_arn
+  allowed_subject_patterns   = var.github_actions_allowed_subject_patterns
+  ecr_repository_arns        = var.enable_ecr ? values(module.ecr[0].repository_arns) : []
+  tags                       = local.common_tags
+}
+
 module "vpc_lite" {
   count  = var.enable_vpc ? 1 : 0
   source = "../../modules/vpc-lite"
