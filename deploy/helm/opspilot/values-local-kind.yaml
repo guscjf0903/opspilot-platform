@@ -1,0 +1,22 @@
+backend:
+  image:
+    repository: opspilot-backend
+    tag: local
+    pullPolicy: IfNotPresent
+  env:
+    SPRING_PROFILES_ACTIVE: local-kind
+    AI_PROVIDER: stub
+    DB_URL: jdbc:postgresql://opspilot-postgresql:5432/opspilot
+    DB_USERNAME: opspilot
+    PROMETHEUS_BASE_URL: http://prometheus-server.monitoring.svc.cluster.local
+    KAFKA_BOOTSTRAP_SERVERS: redpanda.sample-app.svc.cluster.local:9092
+    OPENCOST_BASE_URL: http://opencost.opencost.svc.cluster.local:9003
+
+frontend:
+  image:
+    repository: opspilot-frontend
+    tag: local
+    pullPolicy: IfNotPresent
+
+ingress:
+  enabled: false

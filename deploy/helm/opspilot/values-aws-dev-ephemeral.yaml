@@ -1,0 +1,22 @@
+backend:
+  image:
+    repository: 820932217235.dkr.ecr.ap-northeast-2.amazonaws.com/opspilot-backend
+    tag: SET_BY_CI_COMMIT_SHA
+    pullPolicy: IfNotPresent
+  env:
+    SPRING_PROFILES_ACTIVE: aws-dev
+    AI_PROVIDER: stub
+    DB_URL: jdbc:postgresql://opspilot-postgresql:5432/opspilot
+    DB_USERNAME: opspilot
+    PROMETHEUS_BASE_URL: http://prometheus-server.monitoring.svc.cluster.local
+    KAFKA_BOOTSTRAP_SERVERS: redpanda.sample-app.svc.cluster.local:9092
+    OPENCOST_BASE_URL: http://opencost.opencost.svc.cluster.local:9003
+
+frontend:
+  image:
+    repository: 820932217235.dkr.ecr.ap-northeast-2.amazonaws.com/opspilot-frontend
+    tag: SET_BY_CI_COMMIT_SHA
+    pullPolicy: IfNotPresent
+
+ingress:
+  enabled: false

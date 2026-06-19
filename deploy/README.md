@@ -14,7 +14,7 @@ Helm chart로 OpsPilot과 sample-app을 재현 가능하게 배포합니다.
 - resource request와 limit은 포트폴리오 데모 규모에 맞게 작게 시작합니다.
 - Prometheus, OpenCost, sample-app은 데모 목적에 맞게 작은 retention과 replica를 사용합니다.
 
-## 예정 구조
+## 현재 구조
 
 ```text
 deploy/
@@ -25,17 +25,20 @@ deploy/
       values-local-kind.yaml
       values-aws-dev-ephemeral.yaml
       templates/
-    sample-app/
-      Chart.yaml
-      values.yaml
-      values-aws-dev-ephemeral.yaml
-      templates/
 ```
+
+`opspilot` chart는 backend와 frontend를 작은 replica/resource 기본값으로 배포합니다.
+public ingress는 기본 비활성이고, DB password와 AI provider key 같은 Secret 값은 chart
+values에 직접 넣지 않습니다.
+
+아직 이 chart는 EKS 클러스터를 만들지 않습니다. Terraform의 `aws-dev-ephemeral`에서
+생성한 ECR 이미지 저장소를 참조할 수 있는 배포 템플릿만 제공합니다.
 
 ## 검증 명령
 
 ```bash
 helm lint deploy/helm/opspilot
+helm template opspilot deploy/helm/opspilot -f deploy/helm/opspilot/values-local-kind.yaml
 helm template opspilot deploy/helm/opspilot -f deploy/helm/opspilot/values-aws-dev-ephemeral.yaml
 kubeconform
 ```

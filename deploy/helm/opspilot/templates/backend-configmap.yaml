@@ -1,0 +1,13 @@
+{{- if and .Values.backend.enabled .Values.backend.env }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "opspilot.backendConfigName" . }}
+  labels:
+    {{- include "opspilot.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+data:
+  {{- range $name, $value := .Values.backend.env }}
+  {{ $name }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}

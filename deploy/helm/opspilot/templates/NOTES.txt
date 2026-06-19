@@ -1,0 +1,14 @@
+OpsPilot has been rendered for release {{ .Release.Name }}.
+
+Backend service:
+  {{ include "opspilot.backendName" . }}:{{ .Values.backend.service.port }}
+
+Frontend service:
+  {{ include "opspilot.frontendName" . }}:{{ .Values.frontend.service.port }}
+
+Ingress enabled:
+  {{ .Values.ingress.enabled }}
+
+The chart does not create database or AI provider secrets. Create or reference
+the secret named by backend.secretEnv before expecting the backend pod to become
+ready in a live cluster.

@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "infra/terraform/**"
+      - "deploy/helm/**"
       - ".github/workflows/infra-check.yml"
   workflow_dispatch:
 
@@ -34,3 +35,21 @@ jobs:
 
       - name: Terraform validate
         run: terraform -chdir=infra/terraform/envs/${{ matrix.environment }} validate
+
+  helm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm lint
+        run: helm lint deploy/helm/opspilot
+
+      - name: Render local kind values
+        run: helm template opspilot deploy/helm/opspilot -f deploy/helm/opspilot/values-local-kind.yaml
+
+      - name: Render aws-dev ephemeral values
+        run: helm template opspilot deploy/helm/opspilot -f deploy/helm/opspilot/values-aws-dev-ephemeral.yaml

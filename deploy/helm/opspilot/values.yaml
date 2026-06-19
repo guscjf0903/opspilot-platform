@@ -1,0 +1,134 @@
+nameOverride: ""
+fullnameOverride: ""
+
+commonLabels: {}
+
+imagePullSecrets: []
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+backend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: opspilot-backend
+    tag: ""
+    pullPolicy: IfNotPresent
+  containerPort: 8080
+  service:
+    type: ClusterIP
+    port: 8080
+  podAnnotations: {}
+  podSecurityContext:
+    runAsNonRoot: true
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  env:
+    SPRING_PROFILES_ACTIVE: aws-dev
+    AI_PROVIDER: stub
+    DB_URL: jdbc:postgresql://opspilot-postgresql:5432/opspilot
+    DB_USERNAME: opspilot
+    PROMETHEUS_BASE_URL: http://prometheus-server.monitoring.svc.cluster.local
+    KAFKA_BOOTSTRAP_SERVERS: redpanda.sample-app.svc.cluster.local:9092
+    OPENCOST_BASE_URL: http://opencost.opencost.svc.cluster.local:9003
+  secretEnv:
+    DB_PASSWORD:
+      secretName: opspilot-backend-secret
+      key: db-password
+      optional: true
+    OPENAI_API_KEY:
+      secretName: opspilot-backend-secret
+      key: openai-api-key
+      optional: true
+  readinessProbe:
+    enabled: true
+    path: /actuator/health
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 6
+  livenessProbe:
+    enabled: true
+    path: /actuator/health
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 3
+    failureThreshold: 3
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: opspilot-frontend
+    tag: ""
+    pullPolicy: IfNotPresent
+  containerPort: 8080
+  service:
+    type: ClusterIP
+    port: 8080
+  podAnnotations: {}
+  podSecurityContext:
+    runAsNonRoot: true
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  readinessProbe:
+    enabled: true
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  livenessProbe:
+    enabled: true
+    path: /
+    initialDelaySeconds: 15
+    periodSeconds: 20
+    timeoutSeconds: 3
+    failureThreshold: 3
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: opspilot.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /actuator
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+  tls: []

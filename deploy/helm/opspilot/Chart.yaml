@@ -1,0 +1,6 @@
+apiVersion: v2
+name: opspilot
+description: OpsPilot API and web chart for low-cost portfolio demos.
+type: application
+version: 0.1.0
+appVersion: "0.0.1"
