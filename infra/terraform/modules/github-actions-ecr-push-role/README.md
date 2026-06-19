@@ -16,6 +16,8 @@ GitHub OIDC Provider와 IAM Role을 구성합니다.
 
 - `ecr:GetAuthorizationToken`
 - `ecr:BatchCheckLayerAvailability`
+- `ecr:BatchGetImage`
+- `ecr:DescribeImages`
 - `ecr:InitiateLayerUpload`
 - `ecr:UploadLayerPart`
 - `ecr:CompleteLayerUpload`
