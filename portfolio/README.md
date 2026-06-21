@@ -43,6 +43,10 @@ python3 -m http.server 4173 -d .mode-a-pages
 GitHub repository 설정에서 Pages Source를 `GitHub Actions`로 선택해야 공개 URL이
 생성됩니다.
 
+`Configure Pages` 단계에서 `Get Pages site failed` 또는 `Not Found`가 나오면 Pages가
+아직 활성화되지 않은 상태입니다. `Settings -> Pages -> Build and deployment -> Source`를
+`GitHub Actions`로 바꾼 뒤 실패한 workflow를 다시 실행합니다.
+
 ## Mode A 공개 범위
 
 | 구분 | 내용 |
