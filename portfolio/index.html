@@ -15,6 +15,7 @@
       <a class="brand" href="#top" aria-label="OpsPilot 홈">OpsPilot</a>
       <nav class="nav" aria-label="주요 메뉴">
         <a href="#overview">개요</a>
+        <a href="#public-demo">공개 범위</a>
         <a href="#demo">데모 흐름</a>
         <a href="#architecture">아키텍처</a>
         <a href="#deployment">배포 전략</a>
@@ -34,6 +35,10 @@
             <a class="button primary" href="./demo/">OpsPilot 데모 열기</a>
             <a class="button secondary" href="#architecture">구조 보기</a>
           </div>
+          <p class="hero-note">
+            이 공개 모드는 실제 AWS/EKS를 상시 켜지 않고, 정적 snapshot 데이터로 주요 화면을
+            탐색할 수 있게 만든 저비용 포트폴리오 환경입니다.
+          </p>
         </div>
         <figure class="hero-visual" aria-label="OpsPilot 시스템 아키텍처">
           <img src="./assets/opspilot-architecture.svg" alt="OpsPilot 시스템 아키텍처 다이어그램" />
@@ -69,6 +74,31 @@
               제시하되 직접 운영 조치는 실행하지 않습니다.
             </p>
             <span>근거 기반 분석과 안전한 승인 흐름</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="public-demo" class="section public-demo">
+        <div class="section-heading">
+          <p class="eyebrow">Mode A 공개 데모</p>
+          <h2>방문자는 비용 없이 핵심 화면을 직접 확인할 수 있습니다</h2>
+          <p>
+            GitHub Pages는 백엔드를 실행하지 않습니다. 대신 `/demo/` Vue 앱이 미리 준비된
+            Kubernetes, Kafka, 비용, AI 분석 snapshot을 읽어서 실제 제품 화면처럼 동작합니다.
+          </p>
+        </div>
+        <div class="scope-grid">
+          <article class="scope-item">
+            <strong>항상 공개</strong>
+            <p>포트폴리오 첫 화면, 아키텍처 요약, Dashboard, Workloads, Topology, Kafka, Cost 화면</p>
+          </article>
+          <article class="scope-item">
+            <strong>항상 비활성</strong>
+            <p>실제 AWS 리소스 변경, 운영 action 실행, secret 조회, live cluster endpoint 연결</p>
+          </article>
+          <article class="scope-item">
+            <strong>필요할 때만</strong>
+            <p>Mode B에서 EKS/ALB/RDS/MSK 같은 유료 리소스를 짧게 켜고 Helm 배포를 시연</p>
           </article>
         </div>
       </section>
@@ -120,6 +150,7 @@
         </div>
         <ul class="checklist">
           <li>상시 공개는 GitHub Pages 정적 페이지로 처리해 AWS 비용을 만들지 않습니다.</li>
+          <li>공개 `/demo/` 앱은 fixture adapter로 동작하므로 백엔드와 EKS가 없어도 화면을 탐색할 수 있습니다.</li>
           <li>AWS Budgets를 먼저 설정하고, EKS/ALB/RDS/MSK/NAT Gateway는 기본 비활성으로 둡니다.</li>
           <li>실제 EKS 데모는 Terraform으로 짧게 만들고 Helm으로 배포한 뒤 제거합니다.</li>
           <li>Kafka는 기본 Redpanda로 비용을 줄이고, MSK는 필요할 때만 proof 모드로 검증합니다.</li>

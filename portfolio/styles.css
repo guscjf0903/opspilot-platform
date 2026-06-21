@@ -113,6 +113,15 @@ h3 {
   margin-bottom: 28px;
 }
 
+.hero-note {
+  border-left: 4px solid var(--green);
+  color: var(--muted);
+  line-height: 1.65;
+  margin: 22px 0 0;
+  max-width: 560px;
+  padding-left: 14px;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -159,7 +168,8 @@ h3 {
 }
 
 .mode-grid,
-.guard-grid {
+.guard-grid,
+.scope-grid {
   display: grid;
   gap: 18px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -167,7 +177,8 @@ h3 {
 }
 
 .mode-card,
-.guard-item {
+.guard-item,
+.scope-item {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -177,6 +188,8 @@ h3 {
 
 .mode-card p,
 .guard-item p,
+.scope-item p,
+.public-demo .section-heading p,
 .timeline,
 .checklist {
   color: var(--muted);
@@ -236,6 +249,22 @@ h3 {
   margin-bottom: 12px;
 }
 
+.public-demo {
+  background: #eefbf6;
+  border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+}
+
+.scope-item {
+  min-height: 160px;
+}
+
+.scope-item strong {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
 .footer {
   align-items: center;
   border-top: 1px solid var(--line);
@@ -276,7 +305,8 @@ h3 {
   }
 
   .mode-grid,
-  .guard-grid {
+  .guard-grid,
+  .scope-grid {
     grid-template-columns: 1fr;
   }
 }

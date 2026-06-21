@@ -17,16 +17,41 @@ GitHub Pages artifact는 다음 구조로 조립합니다.
 
 ## 로컬 확인
 
-브라우저에서 아래 파일을 열어 확인합니다.
+첫 화면만 빠르게 볼 때는 브라우저에서 아래 파일을 열어 확인합니다.
 
 ```text
 portfolio/index.html
 ```
 
+GitHub Pages에 올라갈 실제 산출물과 `/demo/` Vue 앱까지 확인할 때는 루트에서 아래
+스크립트를 실행합니다.
+
+```bash
+./scripts/build-mode-a-pages.sh
+python3 -m http.server 4173 -d .mode-a-pages
+```
+
+브라우저에서 `http://localhost:4173`을 열면 `/` 포트폴리오와 `/demo/` 읽기 전용 앱을
+같이 확인할 수 있습니다.
+
 ## GitHub Pages
 
-`.github/workflows/pages.yml` 워크플로우가 `portfolio/`와 `frontend/dist`를 함께
-GitHub Pages artifact로 업로드합니다.
+`.github/workflows/pages.yml` 워크플로우가 `./scripts/build-mode-a-pages.sh`를 실행해
+`portfolio/`와 `frontend/dist`를 `.mode-a-pages` artifact로 조립한 뒤 GitHub Pages에
+업로드합니다.
+
+GitHub repository 설정에서 Pages Source를 `GitHub Actions`로 선택해야 공개 URL이
+생성됩니다.
+
+## Mode A 공개 범위
+
+| 구분 | 내용 |
+| --- | --- |
+| 공개 | 첫 화면, 아키텍처 요약, `/demo/` Vue 읽기 전용 앱 |
+| 데이터 | `frontend/src/demo` fixture snapshot |
+| 비공개 | AWS account id, kubeconfig, Terraform state, secret, live endpoint |
+| 비활성 | 실제 restart, scale, rollback, pod delete 같은 운영 action |
+| 연결 안 함 | 상시 EKS, ALB, RDS, MSK, NAT Gateway |
 
 ## 콘텐츠 원칙
 

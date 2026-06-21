@@ -46,20 +46,8 @@ jobs:
         working-directory: frontend
         run: pnpm install --frozen-lockfile
 
-      - name: Build read-only demo app
-        working-directory: frontend
-        env:
-          VITE_DEMO_MODE: "true"
-          VITE_APP_ENV: "pages-demo"
-          VITE_PUBLIC_BASE_PATH: "./"
-          VITE_ROUTER_HISTORY: "hash"
-        run: pnpm build
-
-      - name: Assemble Pages artifact
-        run: |
-          mkdir -p pages-artifact/demo
-          cp -R portfolio/. pages-artifact/
-          cp -R frontend/dist/. pages-artifact/demo/
+      - name: Build Mode A Pages artifact
+        run: ./scripts/build-mode-a-pages.sh
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -67,7 +55,7 @@ jobs:
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: pages-artifact
+          path: .mode-a-pages
 
       - name: Deploy to GitHub Pages
         id: deployment
