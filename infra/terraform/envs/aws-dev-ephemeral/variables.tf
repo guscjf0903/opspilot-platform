@@ -69,6 +69,12 @@ variable "enable_nat_gateway" {
   default     = false
 }
 
+variable "enable_k3s_lab" {
+  description = "Create a single EC2 instance with k3s for short Mode B Lite live demos. Disabled by default because it creates billable resources."
+  type        = bool
+  default     = false
+}
+
 variable "enable_github_actions_ecr_push_role" {
   description = "Create a GitHub OIDC IAM role that can push images only to the OpsPilot ECR repositories."
   type        = bool
@@ -154,6 +160,59 @@ variable "public_subnet_cidrs" {
     condition     = length(var.public_subnet_cidrs) == 2
     error_message = "aws-dev-ephemeral uses exactly 2 public subnets to keep the demo simple."
   }
+}
+
+variable "k3s_lab_subnet_index" {
+  description = "Index of the public subnet used by the k3s lab instance."
+  type        = number
+  default     = 0
+
+  validation {
+    condition     = var.k3s_lab_subnet_index >= 0 && var.k3s_lab_subnet_index < 2
+    error_message = "k3s_lab_subnet_index must be 0 or 1."
+  }
+}
+
+variable "k3s_lab_instance_type" {
+  description = "EC2 instance type for the k3s lab. t3.small is the default balance between low cost and enough memory for the Java backend."
+  type        = string
+  default     = "t3.small"
+}
+
+variable "k3s_lab_root_volume_size_gb" {
+  description = "Root EBS volume size for the k3s lab instance."
+  type        = number
+  default     = 20
+}
+
+variable "k3s_lab_key_name" {
+  description = "Optional EC2 key pair name. Leave null to avoid SSH and use SSM Session Manager."
+  type        = string
+  default     = null
+}
+
+variable "k3s_lab_allowed_ssh_cidr_blocks" {
+  description = "CIDR blocks allowed to SSH into the k3s lab. Empty by default."
+  type        = list(string)
+  default     = []
+}
+
+variable "k3s_lab_allowed_k3s_api_cidr_blocks" {
+  description = "CIDR blocks allowed to access the k3s API server. Empty by default."
+  type        = list(string)
+  default     = []
+}
+
+variable "k3s_lab_allowed_http_cidr_blocks" {
+  description = "CIDR blocks allowed to access HTTP/HTTPS on the k3s lab. Empty by default."
+  type        = list(string)
+  default     = []
+}
+
+variable "k3s_lab_k3s_channel" {
+  description = "k3s install channel."
+  type        = string
+  default     = "stable"
 }
 
 variable "extra_tags" {

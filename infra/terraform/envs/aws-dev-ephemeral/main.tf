@@ -52,3 +52,21 @@ module "vpc_lite" {
   availability_zone_names = local.selected_availability_zone_names
   tags                    = local.common_tags
 }
+
+module "k3s_lab" {
+  count  = var.enable_k3s_lab && var.enable_vpc ? 1 : 0
+  source = "../../modules/ec2-k3s-lab"
+
+  name_prefix                 = "${var.project_name}-${var.environment}"
+  vpc_id                      = module.vpc_lite[0].vpc_id
+  subnet_id                   = module.vpc_lite[0].public_subnet_ids[var.k3s_lab_subnet_index]
+  instance_type               = var.k3s_lab_instance_type
+  root_volume_size_gb         = var.k3s_lab_root_volume_size_gb
+  key_name                    = var.k3s_lab_key_name
+  allowed_ssh_cidr_blocks     = var.k3s_lab_allowed_ssh_cidr_blocks
+  allowed_k3s_api_cidr_blocks = var.k3s_lab_allowed_k3s_api_cidr_blocks
+  allowed_http_cidr_blocks    = var.k3s_lab_allowed_http_cidr_blocks
+  k3s_channel                 = var.k3s_lab_k3s_channel
+  ecr_repository_arns         = var.enable_ecr ? values(module.ecr[0].repository_arns) : []
+  tags                        = local.common_tags
+}

@@ -9,6 +9,7 @@ enable_alb         = false
 enable_rds         = false
 enable_msk         = false
 enable_nat_gateway = false
+enable_k3s_lab     = false
 
 enable_github_actions_ecr_push_role = true
 github_actions_ecr_push_role_name   = "opspilot-aws-dev-github-actions-ecr-push"
@@ -24,6 +25,15 @@ create_github_oidc_provider       = true
 existing_github_oidc_provider_arn = ""
 
 default_ttl_hours = 4
+
+# Mode B Lite EC2+k3s live demo. Billable when enable_k3s_lab=true.
+k3s_lab_instance_type        = "t3.small"
+k3s_lab_root_volume_size_gb  = 20
+k3s_lab_key_name             = null
+k3s_lab_allowed_ssh_cidr_blocks = []
+k3s_lab_allowed_k3s_api_cidr_blocks = []
+k3s_lab_allowed_http_cidr_blocks = []
+k3s_lab_k3s_channel          = "stable"
 
 ecr_repository_names = [
   "opspilot-backend",
