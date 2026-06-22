@@ -295,6 +295,7 @@ public class OpenAiIncidentAnalysisAdapter implements AiIncidentAnalysisPort {
         payload.put("target", context.target());
         payload.put("inputEvidence", inputEvidence);
         payload.put("events", context.events());
+        payload.put("kafkaConsumerGroupLags", context.kafkaConsumerGroupLags());
         payload.put("metrics", metricsContext(context.metrics()));
         payload.put("topology", topologyContext(context.topology()));
 
@@ -370,9 +371,30 @@ public class OpenAiIncidentAnalysisAdapter implements AiIncidentAnalysisPort {
         }
 
         addMetricEvidence(context.metrics(), evidence);
+        addKafkaEvidence(context, evidence);
         addTopologyEvidence(context.topology(), evidence);
 
         return evidence;
+    }
+
+    private void addKafkaEvidence(IncidentAnalysisContext context, List<IncidentEvidence> evidence) {
+        int kafkaIndex = 1;
+
+        for (var lag : context.kafkaConsumerGroupLags()) {
+            evidence.add(new IncidentEvidence(
+                    "kafka-" + kafkaIndex,
+                    "kafka",
+                    "Kafka consumer lag: " + lag.groupId(),
+                    "consumer group %s total lag %d, reason %s".formatted(
+                            lag.groupId(),
+                            lag.totalLag(),
+                            lag.reason()
+                    ),
+                    lag.status(),
+                    lag.collectedAt()
+            ));
+            kafkaIndex += 1;
+        }
     }
 
     private void addMetricEvidence(ResourceMetrics metrics, List<IncidentEvidence> evidence) {

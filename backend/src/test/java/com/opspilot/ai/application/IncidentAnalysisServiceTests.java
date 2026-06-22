@@ -9,6 +9,9 @@ import static org.mockito.Mockito.when;
 import com.opspilot.ai.adapter.out.memory.InMemoryIncidentAnalysisStore;
 import com.opspilot.ai.adapter.out.stub.StubAiIncidentAnalysisAdapter;
 import com.opspilot.ai.domain.IncidentAnalysisRequest;
+import com.opspilot.kafka.application.KafkaQueryService;
+import com.opspilot.kafka.domain.KafkaConsumerGroupLag;
+import com.opspilot.kafka.domain.KafkaPartitionLag;
 import com.opspilot.kubernetes.application.KubernetesInventoryService;
 import com.opspilot.kubernetes.domain.DeploymentSummary;
 import com.opspilot.kubernetes.domain.EventSummary;
@@ -17,6 +20,8 @@ import com.opspilot.metrics.application.MetricsQueryService;
 import com.opspilot.metrics.domain.MetricQueryWindow;
 import com.opspilot.metrics.domain.ResourceMetrics;
 import com.opspilot.topology.application.TopologyQueryService;
+import com.opspilot.topology.domain.TopologyGraph;
+import com.opspilot.topology.domain.TopologyNode;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,17 +33,21 @@ class IncidentAnalysisServiceTests {
 
     private KubernetesInventoryService kubernetesInventoryService;
     private MetricsQueryService metricsQueryService;
+    private TopologyQueryService topologyQueryService;
+    private KafkaQueryService kafkaQueryService;
     private IncidentAnalysisService incidentAnalysisService;
 
     @BeforeEach
     void setUp() {
         kubernetesInventoryService = mock(KubernetesInventoryService.class);
         metricsQueryService = mock(MetricsQueryService.class);
-        TopologyQueryService topologyQueryService = mock(TopologyQueryService.class);
+        topologyQueryService = mock(TopologyQueryService.class);
+        kafkaQueryService = mock(KafkaQueryService.class);
         incidentAnalysisService = new IncidentAnalysisService(
                 kubernetesInventoryService,
                 metricsQueryService,
                 topologyQueryService,
+                kafkaQueryService,
                 new StubAiIncidentAnalysisAdapter(),
                 new InMemoryIncidentAnalysisStore()
         );
@@ -97,5 +106,71 @@ class IncidentAnalysisServiceTests {
                 .contains("target", "event", "metric");
         assertThat(incidentAnalysisService.getIncidentAnalysis(report.analysisId()))
                 .isEqualTo(report);
+    }
+
+    @Test
+    void includesKafkaLagEvidenceWhenTopologyHasConsumerGroup() {
+        when(kubernetesInventoryService.getDeployments("local", "sample-app"))
+                .thenReturn(List.of(new DeploymentSummary(
+                        "Deployment",
+                        "sample-app",
+                        "order-consumer",
+                        ResourceStatus.HEALTHY,
+                        "Available",
+                        "Available replicas 1/1",
+                        NOW,
+                        1,
+                        1,
+                        1,
+                        1
+                )));
+        when(kubernetesInventoryService.getEvents("local", "sample-app")).thenReturn(List.of());
+        when(topologyQueryService.getTopology("local", "sample-app", "Deployment", "order-consumer"))
+                .thenReturn(new TopologyGraph(
+                        "local",
+                        "sample-app",
+                        "deployment:sample-app:order-consumer",
+                        NOW,
+                        List.of(
+                                new TopologyNode(
+                                        "deployment:sample-app:order-consumer",
+                                        "Deployment",
+                                        "sample-app",
+                                        "order-consumer",
+                                        ResourceStatus.HEALTHY,
+                                        "Available",
+                                        "Available replicas 1/1"
+                                ),
+                                new TopologyNode(
+                                        "kafkaconsumergroup:order-consumer",
+                                        "KafkaConsumerGroup",
+                                        null,
+                                        "order-consumer",
+                                        ResourceStatus.UNKNOWN,
+                                        "MetadataOnly",
+                                        "Dependency inferred from workload annotation"
+                                )
+                        ),
+                        List.of()
+                ));
+        when(kafkaQueryService.getConsumerGroupLag("local", "order-consumer"))
+                .thenReturn(new KafkaConsumerGroupLag(
+                        "order-consumer",
+                        ResourceStatus.WARNING,
+                        "KAFKA_LAG_WARNING",
+                        42,
+                        NOW,
+                        List.of(new KafkaPartitionLag("orders.created", 0, 10L, 52L, 42))
+                ));
+
+        var report = incidentAnalysisService.analyzeIncident(
+                "local",
+                new IncidentAnalysisRequest("sample-app", "Deployment", "order-consumer", 30)
+        );
+
+        assertThat(report.severity()).isEqualTo(ResourceStatus.WARNING);
+        assertThat(report.evidence()).extracting(evidence -> evidence.type()).contains("kafka");
+        assertThat(report.rootCauseCandidates()).extracting(candidate -> candidate.title())
+                .anyMatch(title -> title.contains("Kafka consumer"));
     }
 }

@@ -6,6 +6,8 @@ import com.opspilot.ai.domain.IncidentAnalysisContext;
 import com.opspilot.ai.domain.IncidentAnalysisReport;
 import com.opspilot.ai.domain.IncidentAnalysisRequest;
 import com.opspilot.ai.domain.IncidentAnalysisTarget;
+import com.opspilot.kafka.application.KafkaQueryService;
+import com.opspilot.kafka.domain.KafkaConsumerGroupLag;
 import com.opspilot.kubernetes.application.KubernetesInventoryService;
 import com.opspilot.kubernetes.domain.DeploymentSummary;
 import com.opspilot.kubernetes.domain.EventSummary;
@@ -21,7 +23,9 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +41,7 @@ public class IncidentAnalysisService {
     private final KubernetesInventoryService kubernetesInventoryService;
     private final MetricsQueryService metricsQueryService;
     private final TopologyQueryService topologyQueryService;
+    private final KafkaQueryService kafkaQueryService;
     private final AiIncidentAnalysisPort aiIncidentAnalysisPort;
     private final IncidentAnalysisStore incidentAnalysisStore;
 
@@ -46,12 +51,14 @@ public class IncidentAnalysisService {
         List<EventSummary> events = collectRelatedEvents(clusterId, request.namespace(), target);
         ResourceMetrics metrics = collectMetrics(clusterId, target, timeRangeMinutes);
         TopologyGraph topology = collectTopology(clusterId, target);
+        List<KafkaConsumerGroupLag> kafkaConsumerGroupLags = collectKafkaConsumerGroupLags(clusterId, topology);
         IncidentAnalysisContext context = new IncidentAnalysisContext(
                 clusterId,
                 target,
                 timeRangeMinutes,
                 Instant.now(),
                 events,
+                kafkaConsumerGroupLags,
                 metrics,
                 topology
         );
@@ -135,6 +142,25 @@ public class IncidentAnalysisService {
         } catch (TopologyResourceNotFoundException exception) {
             return null;
         }
+    }
+
+    private List<KafkaConsumerGroupLag> collectKafkaConsumerGroupLags(String clusterId, TopologyGraph topology) {
+        if (topology == null) {
+            return List.of();
+        }
+
+        Set<String> consumerGroupIds = topology.nodes().stream()
+                .filter(node -> "KafkaConsumerGroup".equals(node.kind()))
+                .map(node -> node.name())
+                .collect(Collectors.toSet());
+        if (consumerGroupIds.isEmpty()) {
+            return List.of();
+        }
+
+        return consumerGroupIds.stream()
+                .sorted()
+                .map(groupId -> kafkaQueryService.getConsumerGroupLag(clusterId, groupId))
+                .toList();
     }
 
     private boolean isRelatedEvent(EventSummary event, IncidentAnalysisTarget target) {

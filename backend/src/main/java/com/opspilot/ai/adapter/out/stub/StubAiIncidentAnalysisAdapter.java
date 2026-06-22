@@ -7,6 +7,7 @@ import com.opspilot.ai.domain.IncidentAnalysisReport;
 import com.opspilot.ai.domain.IncidentEvidence;
 import com.opspilot.ai.domain.RecommendedAction;
 import com.opspilot.ai.domain.RootCauseCandidate;
+import com.opspilot.kafka.domain.KafkaConsumerGroupLag;
 import com.opspilot.kubernetes.domain.EventSummary;
 import com.opspilot.kubernetes.domain.ResourceStatus;
 import com.opspilot.metrics.domain.MetricsAvailabilityStatus;
@@ -29,6 +30,7 @@ public class StubAiIncidentAnalysisAdapter implements AiIncidentAnalysisPort {
         List<IncidentEvidence> evidence = new ArrayList<>();
         evidence.add(targetEvidence(context));
         addEventEvidence(context, evidence);
+        addKafkaEvidence(context, evidence);
         addMetricEvidence(context.metrics(), evidence);
         addTopologyEvidence(context, evidence);
 
@@ -119,6 +121,26 @@ public class StubAiIncidentAnalysisAdapter implements AiIncidentAnalysisPort {
         ));
     }
 
+    private void addKafkaEvidence(IncidentAnalysisContext context, List<IncidentEvidence> evidence) {
+        int index = 1;
+
+        for (KafkaConsumerGroupLag lag : context.kafkaConsumerGroupLags()) {
+            evidence.add(new IncidentEvidence(
+                    "kafka-" + index,
+                    "kafka",
+                    "Kafka consumer lag: " + lag.groupId(),
+                    "consumer group %s total lag %d, reason %s".formatted(
+                            lag.groupId(),
+                            lag.totalLag(),
+                            lag.reason()
+                    ),
+                    lag.status(),
+                    lag.collectedAt()
+            ));
+            index += 1;
+        }
+    }
+
     private void addTopologyEvidence(IncidentAnalysisContext context, List<IncidentEvidence> evidence) {
         if (context.topology() == null) {
             return;
@@ -191,6 +213,14 @@ public class StubAiIncidentAnalysisAdapter implements AiIncidentAnalysisPort {
             ));
         }
 
+        if (hasKafkaLag(context.kafkaConsumerGroupLags())) {
+            candidates.add(new RootCauseCandidate(
+                    "Kafka consumer 처리 지연 또는 consumer pod 장애 가능성",
+                    0.74,
+                    matchingEvidenceIds(evidence, "kafka", "topology", "event")
+            ));
+        }
+
         if (candidates.isEmpty()) {
             candidates.add(new RootCauseCandidate(
                     "수집된 context에서 강한 장애 신호가 발견되지 않았습니다",
@@ -226,6 +256,14 @@ public class StubAiIncidentAnalysisAdapter implements AiIncidentAnalysisPort {
             ));
         }
 
+        if (hasKafkaLag(context.kafkaConsumerGroupLags())) {
+            actions.add(new RecommendedAction(
+                    "CHECK_KAFKA_CONSUMER_LAG",
+                    "medium",
+                    "Kafka 화면에서 consumer group lag와 관련 consumer pod 상태를 함께 확인하세요."
+            ));
+        }
+
         return actions;
     }
 
@@ -240,6 +278,10 @@ public class StubAiIncidentAnalysisAdapter implements AiIncidentAnalysisPort {
 
         if (context.topology() != null && !context.topology().edges().isEmpty()) {
             checks.add("Topology에서 관련 Service, Pod, ConfigMap, PVC, Node, Kafka 의존성을 확인하세요.");
+        }
+
+        if (hasKafkaLag(context.kafkaConsumerGroupLags())) {
+            checks.add("Kafka lag가 증가 중이면 order-consumer pod restart와 처리량을 함께 확인하세요.");
         }
 
         return checks;
@@ -288,6 +330,10 @@ public class StubAiIncidentAnalysisAdapter implements AiIncidentAnalysisPort {
         }
 
         return isHigh(metrics.summary().cpuUsagePercent()) || isHigh(metrics.summary().memoryUsagePercent());
+    }
+
+    private boolean hasKafkaLag(List<KafkaConsumerGroupLag> lags) {
+        return lags.stream().anyMatch(lag -> lag.totalLag() > 0 || lag.status() != ResourceStatus.HEALTHY);
     }
 
     private boolean isHigh(Double usagePercent) {
