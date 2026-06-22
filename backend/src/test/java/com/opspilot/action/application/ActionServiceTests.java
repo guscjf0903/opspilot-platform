@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.opspilot.action.application.port.out.ActionApprovalStore;
 import com.opspilot.action.application.port.out.ActionAuditLogStore;
 import com.opspilot.action.application.port.out.KubernetesActionPort;
+import com.opspilot.action.config.ActionProperties;
 import com.opspilot.action.domain.ActionActor;
 import com.opspilot.action.domain.ActionApprovalRequest;
 import com.opspilot.action.domain.ActionAuditLog;
@@ -33,11 +34,13 @@ class ActionServiceTests {
     private InMemoryAuditLogStore auditLogStore;
     private InMemoryApprovalStore approvalStore;
     private ActionService actionService;
+    private ActionProperties actionProperties;
 
     @BeforeEach
     void setUp() {
         OpspilotKubernetesProperties properties = new OpspilotKubernetesProperties();
         properties.setClusterId("local");
+        actionProperties = new ActionProperties();
         auditLogStore = new InMemoryAuditLogStore();
         approvalStore = new InMemoryApprovalStore();
         actionService = new ActionService(
@@ -46,6 +49,7 @@ class ActionServiceTests {
                 approvalStore,
                 new ActionPermissionService(),
                 new ActionPolicyService(),
+                actionProperties,
                 properties
         );
     }
@@ -106,6 +110,25 @@ class ActionServiceTests {
                         null
                 )
         )).isInstanceOf(ActionForbiddenException.class);
+    }
+
+    @Test
+    void executeIsBlockedWhenExecutionDisabled() {
+        actionProperties.setExecutionEnabled(false);
+
+        assertThatThrownBy(() -> actionService.execute(
+                "local",
+                new ActionActor("operator@example.com", UserRole.OPERATOR),
+                new ActionRequest(
+                        "SCALE_DEPLOYMENT",
+                        "sample-app",
+                        "Deployment",
+                        "payment-api",
+                        Map.of("replicas", "3"),
+                        "mode b lite read-only"
+                )
+        )).isInstanceOf(ActionForbiddenException.class)
+                .hasMessageContaining("disabled");
     }
 
     private static class FakeKubernetesActionPort implements KubernetesActionPort {

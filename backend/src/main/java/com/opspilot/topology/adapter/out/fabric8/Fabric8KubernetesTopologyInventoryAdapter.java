@@ -15,7 +15,6 @@ import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.PersistentVolume;
 import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
@@ -31,6 +30,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,15 +57,16 @@ public class Fabric8KubernetesTopologyInventoryAdapter implements KubernetesTopo
     public KubernetesTopologySnapshot getTopologySnapshot(String namespace) {
         return execute("build topology snapshot in namespace " + namespace, () -> {
             List<Resource> resources = new ArrayList<>();
+            List<Resource> pods = getPods(namespace);
             resources.addAll(getDeployments(namespace));
             resources.addAll(getReplicaSets(namespace));
-            resources.addAll(getPods(namespace));
+            resources.addAll(pods);
             resources.addAll(getServices(namespace));
             resources.addAll(getEndpointSlices(namespace));
             resources.addAll(getIngresses(namespace));
             resources.addAll(getHorizontalPodAutoscalers(namespace));
             resources.addAll(getConfigMaps(namespace));
-            resources.addAll(getSecrets(namespace));
+            resources.addAll(getReferencedSecrets(pods));
             resources.addAll(getPersistentVolumeClaims(namespace));
             resources.addAll(getPersistentVolumes());
             resources.addAll(getNodes());
@@ -133,12 +134,6 @@ public class Fabric8KubernetesTopologyInventoryAdapter implements KubernetesTopo
                 .toList();
     }
 
-    private List<Resource> getSecrets(String namespace) {
-        return kubernetesClient.secrets().inNamespace(namespace).list().getItems().stream()
-                .map(secret -> resource("Secret", secret))
-                .toList();
-    }
-
     private List<Resource> getPersistentVolumeClaims(String namespace) {
         return kubernetesClient.persistentVolumeClaims().inNamespace(namespace).list().getItems().stream()
                 .map(claim -> resource("PersistentVolumeClaim", claim, Map.of(), getPvcRelations(claim)))
@@ -155,6 +150,27 @@ public class Fabric8KubernetesTopologyInventoryAdapter implements KubernetesTopo
         return kubernetesClient.nodes().list().getItems().stream()
                 .map(node -> resource("Node", node))
                 .toList();
+    }
+
+    private List<Resource> getReferencedSecrets(List<Resource> resources) {
+        Map<String, Resource> secrets = new LinkedHashMap<>();
+        resources.stream()
+                .flatMap(resource -> resource.relations().stream())
+                .filter(relation -> "Secret".equals(relation.targetKind()))
+                .forEach(relation -> {
+                    String key = relation.targetNamespace() + "/" + relation.targetName();
+                    secrets.putIfAbsent(key, new Resource(
+                            "Secret",
+                            relation.targetNamespace(),
+                            relation.targetName(),
+                            Map.of(),
+                            Map.of(),
+                            List.of(),
+                            Map.of(),
+                            List.of()
+                    ));
+                });
+        return List.copyOf(secrets.values());
     }
 
     private Resource resource(String kind, HasMetadata metadata) {

@@ -1,3 +1,5 @@
+fullnameOverride: opspilot
+
 backend:
   image:
     repository: 820932217235.dkr.ecr.ap-northeast-2.amazonaws.com/opspilot-backend
@@ -8,8 +10,14 @@ backend:
     AI_PROVIDER: stub
     DB_URL: jdbc:postgresql://opspilot-postgresql:5432/opspilot
     DB_USERNAME: opspilot
+    KUBERNETES_CLUSTER_ID: mode-b-lite
+    KUBERNETES_DISPLAY_NAME: Mode B Lite k3s
+    KUBERNETES_PROVIDER: k3s
+    OPSPILOT_ACTIONS_EXECUTION_ENABLED: "false"
     PROMETHEUS_BASE_URL: http://prometheus-server.monitoring.svc.cluster.local
     KAFKA_BOOTSTRAP_SERVERS: redpanda.sample-app.svc.cluster.local:9092
+    OPSPILOT_KAFKA_WARNING_LAG_THRESHOLD: "10"
+    OPSPILOT_KAFKA_CRITICAL_LAG_THRESHOLD: "50"
     OPENCOST_BASE_URL: http://opencost.opencost.svc.cluster.local:9003
 
 frontend:
@@ -17,6 +25,24 @@ frontend:
     repository: 820932217235.dkr.ecr.ap-northeast-2.amazonaws.com/opspilot-frontend
     tag: SET_BY_CI_COMMIT_SHA
     pullPolicy: IfNotPresent
+
+demoPostgresql:
+  enabled: true
+
+kubernetesReadOnlyRbac:
+  enabled: true
+
+demoSampleApp:
+  enabled: true
+  paymentApi:
+    readinessPath: /missing-health
+  worker:
+    crashLoop: true
+  unusedPvc:
+    enabled: true
+
+demoKafka:
+  enabled: true
 
 ingress:
   enabled: false

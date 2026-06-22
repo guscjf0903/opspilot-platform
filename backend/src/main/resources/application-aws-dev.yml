@@ -7,9 +7,9 @@ spring:
 opspilot:
   kubernetes:
     mode: in-cluster
-    cluster-id: aws-dev
-    display-name: aws-dev
-    provider: eks
+    cluster-id: ${KUBERNETES_CLUSTER_ID:aws-dev}
+    display-name: ${KUBERNETES_DISPLAY_NAME:aws-dev}
+    provider: ${KUBERNETES_PROVIDER:eks}
   prometheus:
     base-url: ${PROMETHEUS_BASE_URL}
   kafka:

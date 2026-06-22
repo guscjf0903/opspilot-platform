@@ -3,6 +3,7 @@ package com.opspilot.action.application;
 import com.opspilot.action.application.port.out.ActionApprovalStore;
 import com.opspilot.action.application.port.out.ActionAuditLogStore;
 import com.opspilot.action.application.port.out.KubernetesActionPort;
+import com.opspilot.action.config.ActionProperties;
 import com.opspilot.action.domain.ActionActor;
 import com.opspilot.action.domain.ActionApprovalDecisionRequest;
 import com.opspilot.action.domain.ActionApprovalRequest;
@@ -36,6 +37,7 @@ public class ActionService {
     private final ActionApprovalStore approvalStore;
     private final ActionPermissionService permissionService;
     private final ActionPolicyService policyService;
+    private final ActionProperties actionProperties;
     private final OpspilotKubernetesProperties kubernetesProperties;
 
     @Transactional
@@ -64,6 +66,10 @@ public class ActionService {
 
     @Transactional
     public ActionExecutionResult execute(String clusterId, ActionActor actor, ActionRequest request) {
+        if (!actionProperties.isExecutionEnabled()) {
+            throw new ActionForbiddenException("Kubernetes action execution is disabled in this environment.");
+        }
+
         ActionCommand command = command(clusterId, request);
         permissionService.assertCanRequest(actor, command);
 

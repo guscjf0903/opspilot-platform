@@ -1,0 +1,19 @@
+{{- if .Values.demoPostgresql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: opspilot-postgresql
+  labels:
+    {{- include "opspilot.labels" . | nindent 4 }}
+    app.kubernetes.io/component: demo-postgresql
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgres
+      port: {{ .Values.demoPostgresql.service.port }}
+      targetPort: postgres
+      protocol: TCP
+  selector:
+    {{- include "opspilot.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: demo-postgresql
+{{- end }}

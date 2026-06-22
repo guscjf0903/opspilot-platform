@@ -5,6 +5,8 @@ on:
     paths:
       - "infra/terraform/**"
       - "deploy/helm/**"
+      - "scripts/deploy-mode-b-lite-k3s.sh"
+      - "scripts/start-mode-b-lite-tunnel.sh"
       - ".github/workflows/infra-check.yml"
   workflow_dispatch:
 
@@ -53,3 +55,14 @@ jobs:
 
       - name: Render aws-dev ephemeral values
         run: helm template opspilot deploy/helm/opspilot -f deploy/helm/opspilot/values-aws-dev-ephemeral.yaml
+
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Mode B Lite scripts
+        run: |
+          bash -n scripts/deploy-mode-b-lite-k3s.sh
+          bash -n scripts/start-mode-b-lite-tunnel.sh

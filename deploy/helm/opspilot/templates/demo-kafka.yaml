@@ -1,0 +1,184 @@
+{{- if .Values.demoKafka.enabled }}
+{{- $namespace := .Values.demoKafka.namespace }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redpanda
+  namespace: {{ $namespace }}
+  labels:
+    app.kubernetes.io/name: redpanda
+    app.kubernetes.io/part-of: opspilot-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redpanda
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redpanda
+        app.kubernetes.io/part-of: opspilot-demo
+    spec:
+      containers:
+        - name: redpanda
+          image: "{{ .Values.demoKafka.redpanda.image.repository }}:{{ .Values.demoKafka.redpanda.image.tag }}"
+          imagePullPolicy: {{ .Values.demoKafka.redpanda.image.pullPolicy }}
+          command:
+            - redpanda
+            - start
+            - --smp
+            - "1"
+            - --memory
+            - 512M
+            - --reserve-memory
+            - 0M
+            - --overprovisioned
+            - --node-id
+            - "0"
+            - --check=false
+            - --kafka-addr
+            - PLAINTEXT://0.0.0.0:9092
+            - --advertise-kafka-addr
+            - PLAINTEXT://redpanda.{{ $namespace }}.svc.cluster.local:9092
+            - --rpc-addr
+            - 0.0.0.0:33145
+            - --advertise-rpc-addr
+            - redpanda.{{ $namespace }}.svc.cluster.local:33145
+            - --admin-addr
+            - 0.0.0.0:9644
+          ports:
+            - name: kafka
+              containerPort: {{ .Values.demoKafka.redpanda.service.kafkaPort }}
+              protocol: TCP
+            - name: admin
+              containerPort: {{ .Values.demoKafka.redpanda.service.adminPort }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /v1/status/ready
+              port: admin
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 12
+          resources:
+            {{- toYaml .Values.demoKafka.redpanda.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redpanda
+  namespace: {{ $namespace }}
+  labels:
+    app.kubernetes.io/name: redpanda
+    app.kubernetes.io/part-of: opspilot-demo
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: redpanda
+  ports:
+    - name: kafka
+      port: {{ .Values.demoKafka.redpanda.service.kafkaPort }}
+      targetPort: kafka
+      protocol: TCP
+    - name: admin
+      port: {{ .Values.demoKafka.redpanda.service.adminPort }}
+      targetPort: admin
+      protocol: TCP
+{{- if .Values.demoKafka.producer.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-producer
+  namespace: {{ $namespace }}
+  labels:
+    app.kubernetes.io/name: order-producer
+    app.kubernetes.io/part-of: opspilot-demo
+  annotations:
+    opspilot.io/kafka-direction: produce
+    opspilot.io/kafka-topics: {{ .Values.demoKafka.topic | quote }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: order-producer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: order-producer
+        app.kubernetes.io/part-of: opspilot-demo
+    spec:
+      containers:
+        - name: producer
+          image: "{{ .Values.demoKafka.producer.image.repository }}:{{ .Values.demoKafka.producer.image.tag }}"
+          imagePullPolicy: {{ .Values.demoKafka.producer.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              BROKERS="{{ .Values.demoKafka.brokers }}"
+              TOPIC="{{ .Values.demoKafka.topic }}"
+              until rpk cluster info -X brokers="$BROKERS"; do
+                sleep 5
+              done
+              rpk topic create "$TOPIC" -X brokers="$BROKERS" --partitions 1 --replicas 1 || true
+              i=0
+              while true; do
+                i=$((i + 1))
+                printf '{"orderId":"mode-b-lite-%s","createdAt":"%s"}\n' "$i" "$(date -Iseconds)" |
+                  rpk topic produce "$TOPIC" -X brokers="$BROKERS"
+                sleep {{ .Values.demoKafka.producer.intervalSeconds }}
+              done
+          resources:
+            {{- toYaml .Values.demoKafka.producer.resources | nindent 12 }}
+{{- end }}
+{{- if .Values.demoKafka.consumer.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-consumer
+  namespace: {{ $namespace }}
+  labels:
+    app.kubernetes.io/name: order-consumer
+    app.kubernetes.io/part-of: opspilot-demo
+  annotations:
+    opspilot.io/kafka-consumer-group: {{ .Values.demoKafka.consumerGroup | quote }}
+    opspilot.io/kafka-direction: consume
+    opspilot.io/kafka-topics: {{ .Values.demoKafka.topic | quote }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: order-consumer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: order-consumer
+        app.kubernetes.io/part-of: opspilot-demo
+    spec:
+      containers:
+        - name: consumer
+          image: "{{ .Values.demoKafka.consumer.image.repository }}:{{ .Values.demoKafka.consumer.image.tag }}"
+          imagePullPolicy: {{ .Values.demoKafka.consumer.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              BROKERS="{{ .Values.demoKafka.brokers }}"
+              TOPIC="{{ .Values.demoKafka.topic }}"
+              GROUP="{{ .Values.demoKafka.consumerGroup }}"
+              until rpk topic describe "$TOPIC" -X brokers="$BROKERS"; do
+                sleep 5
+              done
+              while true; do
+                rpk topic consume "$TOPIC" -X brokers="$BROKERS" --group="$GROUP" --offset=start --num 1 || true
+                sleep {{ .Values.demoKafka.consumer.intervalSeconds }}
+              done
+          resources:
+            {{- toYaml .Values.demoKafka.consumer.resources | nindent 12 }}
+{{- end }}
+{{- end }}

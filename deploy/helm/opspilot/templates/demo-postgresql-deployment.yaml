@@ -1,0 +1,47 @@
+{{- if .Values.demoPostgresql.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opspilot-postgresql
+  labels:
+    {{- include "opspilot.labels" . | nindent 4 }}
+    app.kubernetes.io/component: demo-postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "opspilot.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: demo-postgresql
+  template:
+    metadata:
+      labels:
+        {{- include "opspilot.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: demo-postgresql
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.demoPostgresql.image.repository }}:{{ .Values.demoPostgresql.image.tag }}"
+          imagePullPolicy: {{ .Values.demoPostgresql.image.pullPolicy }}
+          ports:
+            - name: postgres
+              containerPort: {{ .Values.demoPostgresql.service.port }}
+              protocol: TCP
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.demoPostgresql.database | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.demoPostgresql.username | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.demoPostgresql.passwordSecretName }}
+                  key: {{ .Values.demoPostgresql.passwordSecretKey }}
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            {{- toYaml .Values.demoPostgresql.resources | nindent 12 }}
+      volumes:
+        - name: postgres-data
+          emptyDir: {}
+{{- end }}

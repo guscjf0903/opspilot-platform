@@ -5,10 +5,133 @@ commonLabels: {}
 
 imagePullSecrets: []
 
+demoPostgresql:
+  enabled: false
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+  service:
+    port: 5432
+  database: opspilot
+  username: opspilot
+  passwordSecretName: opspilot-backend-secret
+  passwordSecretKey: db-password
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
 serviceAccount:
   create: true
   name: ""
   annotations: {}
+
+kubernetesReadOnlyRbac:
+  enabled: false
+
+demoSampleApp:
+  enabled: false
+  namespace: sample-app
+  paymentApi:
+    replicas: 2
+    image:
+      repository: nginx
+      tag: "1.28-alpine"
+      pullPolicy: IfNotPresent
+    readinessPath: /
+    resources:
+      requests:
+        cpu: 25m
+        memory: 48Mi
+      limits:
+        cpu: 100m
+        memory: 96Mi
+  catalogApi:
+    replicas: 1
+    image:
+      repository: nginx
+      tag: "1.28-alpine"
+      pullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 750m
+        memory: 128Mi
+      limits:
+        cpu: "1"
+        memory: 256Mi
+  worker:
+    replicas: 1
+    crashLoop: false
+    image:
+      repository: busybox
+      tag: "1.37.0"
+      pullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 10m
+        memory: 16Mi
+      limits:
+        cpu: 50m
+        memory: 32Mi
+  unusedPvc:
+    enabled: false
+    storage: 1Gi
+
+demoKafka:
+  enabled: false
+  namespace: sample-app
+  topic: orders.created
+  consumerGroup: order-consumer
+  brokers: redpanda.sample-app.svc.cluster.local:9092
+  redpanda:
+    image:
+      repository: docker.redpanda.com/redpandadata/redpanda
+      tag: "v26.1.9"
+      pullPolicy: IfNotPresent
+    service:
+      kafkaPort: 9092
+      adminPort: 9644
+    resources:
+      requests:
+        cpu: 150m
+        memory: 384Mi
+      limits:
+        cpu: 500m
+        memory: 768Mi
+  producer:
+    enabled: true
+    intervalSeconds: 1
+    image:
+      repository: docker.redpanda.com/redpandadata/redpanda
+      tag: "v26.1.9"
+      pullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+  consumer:
+    enabled: true
+    intervalSeconds: 8
+    image:
+      repository: docker.redpanda.com/redpandadata/redpanda
+      tag: "v26.1.9"
+      pullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
 
 backend:
   enabled: true
