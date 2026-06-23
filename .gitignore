@@ -7,6 +7,8 @@
 Docs/
 AGENTS.md
 **/AGENTS.md
+CLAUDE.md
+**/CLAUDE.md
 .git-root-backup-*/
 .subrepo-git-backups/
 
