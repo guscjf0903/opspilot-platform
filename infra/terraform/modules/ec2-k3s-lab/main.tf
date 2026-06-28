@@ -62,7 +62,7 @@ locals {
     cat >/etc/opspilot-mode-b-lite.txt <<'EOF'
     OpsPilot Mode B Lite k3s lab is ready.
     Use SSM Session Manager by default.
-    Clone the repository and run scripts/deploy-mode-b-lite-k3s.sh with IMAGE_TAG=<commit-sha>.
+    Clone the repository and run scripts/mode-b-lite/deploy-k3s.sh with IMAGE_TAG=<commit-sha>.
     EOF
   EOT
 }

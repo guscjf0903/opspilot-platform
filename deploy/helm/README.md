@@ -81,14 +81,14 @@ helm upgrade --install opspilot deploy/helm/opspilot \
   --set frontend.image.tag=<commit-sha>
 ```
 
-Mode B Lite k3s lab에서는 위 명령 대신 루트의 `scripts/deploy-mode-b-lite-k3s.sh`를 사용하면
+Mode B Lite k3s lab에서는 위 명령 대신 루트의 `scripts/mode-b-lite/deploy-k3s.sh`를 사용하면
 Secret 생성, ECR 인증, OpsPilot rollout, Redpanda/Kafka demo rollout 확인, EC2 내부 frontend
 port-forward까지 함께 처리합니다.
 
 노트북에서 화면을 볼 때는 SSM 터널을 엽니다.
 
 ```bash
-AWS_PROFILE=opspilot-lab ./scripts/start-mode-b-lite-tunnel.sh
+AWS_PROFILE=opspilot-lab ./scripts/mode-b-lite/start-tunnel.sh
 ```
 
 Secret topology는 Kubernetes Secret API를 직접 list하지 않고 Pod spec의 Secret 참조에서

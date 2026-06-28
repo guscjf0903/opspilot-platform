@@ -1,0 +1,27 @@
+aws_region   = "ap-northeast-2"
+project_name = "opspilot"
+environment  = "aws-dev"
+
+default_ttl_hours = 4
+
+ecr_repository_names = [
+  "opspilot-backend",
+  "opspilot-frontend"
+]
+
+ecr_image_tag_mutability       = "IMMUTABLE"
+ecr_scan_on_push               = false
+ecr_expire_untagged_after_days = 3
+ecr_keep_recent_images         = 5
+
+github_actions_ecr_push_role_name = "opspilot-aws-dev-github-actions-ecr-push"
+
+# 기본값은 guscjf0903/opspilot-platform 저장소의 main branch workflow만 허용합니다.
+# 다른 branch나 GitHub Environment로 배포하려면 subject pattern을 명시적으로 추가하세요.
+github_actions_allowed_subject_patterns = [
+  "repo:guscjf0903/opspilot-platform:ref:refs/heads/main"
+]
+
+# AWS 계정에 GitHub Actions OIDC Provider가 이미 있으면 아래 값을 바꿔 사용합니다.
+create_github_oidc_provider       = true
+existing_github_oidc_provider_arn = ""

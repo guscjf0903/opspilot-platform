@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CONTEXT="${KUBE_CONTEXT:-kind-opspilot-demo}"
-LOCAL_PORT="${PROMETHEUS_LOCAL_PORT:-9090}"
-
-kubectl --context "${CONTEXT}" port-forward -n monitoring service/prometheus "${LOCAL_PORT}:9090"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+exec "${ROOT_DIR}/scripts/local-kind/port-forward-prometheus.sh" "$@"

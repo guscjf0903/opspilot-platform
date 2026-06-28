@@ -30,6 +30,12 @@ variable "availability_zone_names" {
   }
 }
 
+variable "map_public_ip_on_launch" {
+  description = "Assign public IPv4 addresses to instances launched into public subnets. Required for NAT-free EKS worker nodes."
+  type        = bool
+  default     = false
+}
+
 variable "tags" {
   description = "Common tags for AWS resources."
   type        = map(string)

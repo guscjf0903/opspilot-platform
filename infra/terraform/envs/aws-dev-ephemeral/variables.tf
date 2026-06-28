@@ -28,9 +28,9 @@ variable "default_ttl_hours" {
 }
 
 variable "enable_ecr" {
-  description = "Create private ECR repositories."
+  description = "Deprecated. ECR repositories are managed by aws-dev-foundation."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_vpc" {
@@ -40,7 +40,7 @@ variable "enable_vpc" {
 }
 
 variable "enable_eks" {
-  description = "Reserved for short-lived EKS demo resources. Disabled by default."
+  description = "Create short-lived EKS demo resources. Disabled by default because EKS creates billable resources."
   type        = bool
   default     = false
 }
@@ -75,20 +75,92 @@ variable "enable_k3s_lab" {
   default     = false
 }
 
-variable "enable_github_actions_ecr_push_role" {
-  description = "Create a GitHub OIDC IAM role that can push images only to the OpsPilot ECR repositories."
+variable "eks_cluster_name" {
+  description = "Optional EKS cluster name. Defaults to <project>-<environment>-eks."
+  type        = string
+  default     = null
+}
+
+variable "eks_kubernetes_version" {
+  description = "Optional EKS Kubernetes version. Leave null to use the AWS default for the region/account."
+  type        = string
+  default     = null
+}
+
+variable "eks_endpoint_public_access" {
+  description = "Whether the EKS API endpoint is reachable from the public internet."
   type        = bool
   default     = true
 }
 
+variable "eks_endpoint_private_access" {
+  description = "Whether the EKS API endpoint is reachable from inside the VPC."
+  type        = bool
+  default     = false
+}
+
+variable "eks_endpoint_public_access_cidrs" {
+  description = "CIDR blocks allowed to access the public EKS API endpoint. Restrict this to your current IP for real demos when possible."
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "eks_node_group_instance_types" {
+  description = "EC2 instance types for the EKS managed node group."
+  type        = list(string)
+  default     = ["t3.medium"]
+}
+
+variable "eks_node_group_ami_type" {
+  description = "AMI type for the EKS managed node group."
+  type        = string
+  default     = "AL2_x86_64"
+}
+
+variable "eks_node_group_capacity_type" {
+  description = "Capacity type for the EKS managed node group."
+  type        = string
+  default     = "ON_DEMAND"
+}
+
+variable "eks_node_group_desired_size" {
+  description = "Desired node count for the EKS managed node group."
+  type        = number
+  default     = 1
+}
+
+variable "eks_node_group_min_size" {
+  description = "Minimum node count for the EKS managed node group."
+  type        = number
+  default     = 0
+}
+
+variable "eks_node_group_max_size" {
+  description = "Maximum node count for the EKS managed node group."
+  type        = number
+  default     = 1
+}
+
+variable "eks_node_group_disk_size_gb" {
+  description = "Root disk size for each EKS managed node group instance."
+  type        = number
+  default     = 20
+}
+
+variable "enable_github_actions_ecr_push_role" {
+  description = "Deprecated. GitHub Actions ECR push role is managed by aws-dev-foundation."
+  type        = bool
+  default     = false
+}
+
 variable "ecr_repository_names" {
-  description = "Private ECR repositories for OpsPilot images."
+  description = "Deprecated. ECR repositories are managed by aws-dev-foundation."
   type        = list(string)
   default     = ["opspilot-backend", "opspilot-frontend"]
 }
 
 variable "ecr_image_tag_mutability" {
-  description = "ECR image tag mutability."
+  description = "Deprecated. ECR repositories are managed by aws-dev-foundation."
   type        = string
   default     = "IMMUTABLE"
 
@@ -99,43 +171,43 @@ variable "ecr_image_tag_mutability" {
 }
 
 variable "ecr_scan_on_push" {
-  description = "Whether ECR scans images when they are pushed."
+  description = "Deprecated. ECR repositories are managed by aws-dev-foundation."
   type        = bool
   default     = false
 }
 
 variable "ecr_expire_untagged_after_days" {
-  description = "Number of days before untagged ECR images expire."
+  description = "Deprecated. ECR repositories are managed by aws-dev-foundation."
   type        = number
   default     = 3
 }
 
 variable "ecr_keep_recent_images" {
-  description = "Number of recent ECR images to keep."
+  description = "Deprecated. ECR repositories are managed by aws-dev-foundation."
   type        = number
   default     = 5
 }
 
 variable "github_actions_ecr_push_role_name" {
-  description = "IAM role name for GitHub Actions ECR push."
+  description = "Deprecated. GitHub Actions ECR push role is managed by aws-dev-foundation."
   type        = string
   default     = "opspilot-aws-dev-github-actions-ecr-push"
 }
 
 variable "create_github_oidc_provider" {
-  description = "Create GitHub Actions OIDC provider. Set false when the AWS account already has one."
+  description = "Deprecated. GitHub Actions ECR push role is managed by aws-dev-foundation."
   type        = bool
   default     = true
 }
 
 variable "existing_github_oidc_provider_arn" {
-  description = "Existing GitHub Actions OIDC provider ARN when create_github_oidc_provider is false."
+  description = "Deprecated. GitHub Actions ECR push role is managed by aws-dev-foundation."
   type        = string
   default     = ""
 }
 
 variable "github_actions_allowed_subject_patterns" {
-  description = "GitHub OIDC sub patterns that can assume the ECR push role."
+  description = "Deprecated. GitHub Actions ECR push role is managed by aws-dev-foundation."
   type        = list(string)
   default     = ["repo:guscjf0903/opspilot-platform:ref:refs/heads/main"]
 
@@ -143,6 +215,18 @@ variable "github_actions_allowed_subject_patterns" {
     condition     = length(var.github_actions_allowed_subject_patterns) > 0
     error_message = "github_actions_allowed_subject_patterns must contain at least one subject pattern."
   }
+}
+
+variable "foundation_ecr_repository_arns" {
+  description = "ECR repository ARNs from aws-dev-foundation, keyed by repository name."
+  type        = map(string)
+  default     = {}
+}
+
+variable "foundation_ecr_repository_urls" {
+  description = "ECR repository URLs from aws-dev-foundation, keyed by repository name."
+  type        = map(string)
+  default     = {}
 }
 
 variable "vpc_cidr_block" {

@@ -2,7 +2,6 @@ aws_region   = "ap-northeast-2"
 project_name = "opspilot"
 environment  = "aws-dev"
 
-enable_ecr         = true
 enable_vpc         = true
 enable_eks         = false
 enable_alb         = false
@@ -11,31 +10,44 @@ enable_msk         = false
 enable_nat_gateway = false
 enable_k3s_lab     = false
 
-enable_github_actions_ecr_push_role = true
-github_actions_ecr_push_role_name   = "opspilot-aws-dev-github-actions-ecr-push"
-
-# 기본값은 guscjf0903/opspilot-platform 저장소의 main branch 수동 workflow만 허용합니다.
-# 다른 branch나 GitHub Environment로 배포하려면 subject pattern을 명시적으로 추가하세요.
-github_actions_allowed_subject_patterns = [
-  "repo:guscjf0903/opspilot-platform:ref:refs/heads/main"
-]
-
-# AWS 계정에 GitHub Actions OIDC Provider가 이미 있으면 아래 값을 바꿔 사용합니다.
-create_github_oidc_provider       = true
-existing_github_oidc_provider_arn = ""
-
 default_ttl_hours = 4
 
-# Mode B Lite EC2+k3s live demo. Billable when enable_k3s_lab=true.
-k3s_lab_instance_type        = "t3.small"
-k3s_lab_root_volume_size_gb  = 20
-k3s_lab_key_name             = null
-k3s_lab_allowed_ssh_cidr_blocks = []
-k3s_lab_allowed_k3s_api_cidr_blocks = []
-k3s_lab_allowed_http_cidr_blocks = []
-k3s_lab_k3s_channel          = "stable"
+# Mode B EKS ephemeral lab.
+# Set enable_eks=true only when you are ready to create billable EKS/EC2/EBS resources.
+eks_cluster_name                  = null
+eks_kubernetes_version            = null
+eks_endpoint_public_access        = true
+eks_endpoint_private_access       = false
+eks_endpoint_public_access_cidrs  = ["0.0.0.0/0"]
+eks_node_group_instance_types     = ["t3.medium"]
+eks_node_group_ami_type           = "AL2_x86_64"
+eks_node_group_capacity_type      = "ON_DEMAND"
+eks_node_group_desired_size       = 1
+eks_node_group_min_size           = 0
+eks_node_group_max_size           = 1
+eks_node_group_disk_size_gb       = 20
 
-ecr_repository_names = [
-  "opspilot-backend",
-  "opspilot-frontend"
-]
+# Copy these maps from:
+#   terraform -chdir=infra/terraform/envs/aws-dev-foundation output ecr_repository_arns
+#   terraform -chdir=infra/terraform/envs/aws-dev-foundation output ecr_repository_urls
+#
+# They are required when enable_k3s_lab=true so the EC2 role can pull ECR images.
+foundation_ecr_repository_arns = {
+  opspilot-backend  = "arn:aws:ecr:ap-northeast-2:<account-id>:repository/opspilot-backend"
+  opspilot-frontend = "arn:aws:ecr:ap-northeast-2:<account-id>:repository/opspilot-frontend"
+}
+
+foundation_ecr_repository_urls = {
+  opspilot-backend  = "<account-id>.dkr.ecr.ap-northeast-2.amazonaws.com/opspilot-backend"
+  opspilot-frontend = "<account-id>.dkr.ecr.ap-northeast-2.amazonaws.com/opspilot-frontend"
+}
+
+# Mode B Lite EC2+k3s live demo.
+# Set enable_k3s_lab=true above only when you are ready to create billable EC2/EBS resources.
+k3s_lab_instance_type                   = "t3.small"
+k3s_lab_root_volume_size_gb             = 20
+k3s_lab_key_name                        = null
+k3s_lab_allowed_ssh_cidr_blocks         = []
+k3s_lab_allowed_k3s_api_cidr_blocks = []
+k3s_lab_allowed_http_cidr_blocks        = []
+k3s_lab_k3s_channel                     = "stable"

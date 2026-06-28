@@ -16,30 +16,8 @@ locals {
     0,
     length(var.public_subnet_cidrs)
   )
-}
 
-module "ecr" {
-  count  = var.enable_ecr ? 1 : 0
-  source = "../../modules/ecr"
-
-  repository_names           = var.ecr_repository_names
-  image_tag_mutability       = var.ecr_image_tag_mutability
-  scan_on_push               = var.ecr_scan_on_push
-  expire_untagged_after_days = var.ecr_expire_untagged_after_days
-  keep_recent_images         = var.ecr_keep_recent_images
-  tags                       = local.common_tags
-}
-
-module "github_actions_ecr_push_role" {
-  count  = var.enable_github_actions_ecr_push_role && var.enable_ecr ? 1 : 0
-  source = "../../modules/github-actions-ecr-push-role"
-
-  role_name                  = var.github_actions_ecr_push_role_name
-  create_oidc_provider       = var.create_github_oidc_provider
-  existing_oidc_provider_arn = var.existing_github_oidc_provider_arn
-  allowed_subject_patterns   = var.github_actions_allowed_subject_patterns
-  ecr_repository_arns        = var.enable_ecr ? values(module.ecr[0].repository_arns) : []
-  tags                       = local.common_tags
+  eks_cluster_name = coalesce(var.eks_cluster_name, "${var.project_name}-${var.environment}-eks")
 }
 
 module "vpc_lite" {
@@ -50,6 +28,7 @@ module "vpc_lite" {
   cidr_block              = var.vpc_cidr_block
   public_subnet_cidrs     = var.public_subnet_cidrs
   availability_zone_names = local.selected_availability_zone_names
+  map_public_ip_on_launch = var.enable_eks
   tags                    = local.common_tags
 }
 
@@ -67,6 +46,63 @@ module "k3s_lab" {
   allowed_k3s_api_cidr_blocks = var.k3s_lab_allowed_k3s_api_cidr_blocks
   allowed_http_cidr_blocks    = var.k3s_lab_allowed_http_cidr_blocks
   k3s_channel                 = var.k3s_lab_k3s_channel
-  ecr_repository_arns         = var.enable_ecr ? values(module.ecr[0].repository_arns) : []
+  ecr_repository_arns         = values(var.foundation_ecr_repository_arns)
   tags                        = local.common_tags
+}
+
+module "eks_ephemeral" {
+  count  = var.enable_eks && var.enable_vpc ? 1 : 0
+  source = "../../modules/eks-ephemeral"
+
+  cluster_name                 = local.eks_cluster_name
+  kubernetes_version           = var.eks_kubernetes_version
+  public_subnet_ids            = module.vpc_lite[0].public_subnet_ids
+  endpoint_public_access       = var.eks_endpoint_public_access
+  endpoint_private_access      = var.eks_endpoint_private_access
+  endpoint_public_access_cidrs = var.eks_endpoint_public_access_cidrs
+  node_group_instance_types    = var.eks_node_group_instance_types
+  node_group_ami_type          = var.eks_node_group_ami_type
+  node_group_capacity_type     = var.eks_node_group_capacity_type
+  node_group_desired_size      = var.eks_node_group_desired_size
+  node_group_min_size          = var.eks_node_group_min_size
+  node_group_max_size          = var.eks_node_group_max_size
+  node_group_disk_size_gb      = var.eks_node_group_disk_size_gb
+  tags                         = local.common_tags
+}
+
+resource "terraform_data" "runtime_mode_guard" {
+  input = {
+    enable_eks     = var.enable_eks
+    enable_k3s_lab = var.enable_k3s_lab
+    enable_vpc     = var.enable_vpc
+  }
+
+  lifecycle {
+    precondition {
+      condition     = !(var.enable_eks && var.enable_k3s_lab)
+      error_message = "Enable only one Kubernetes runtime at a time: enable_eks=true for Mode B or enable_k3s_lab=true for Mode B Lite."
+    }
+
+    precondition {
+      condition     = !var.enable_eks || var.enable_vpc
+      error_message = "enable_eks=true requires enable_vpc=true because EKS needs subnets."
+    }
+  }
+}
+
+resource "terraform_data" "k3s_lab_foundation_ecr_guard" {
+  count = var.enable_k3s_lab ? 1 : 0
+  input = var.foundation_ecr_repository_arns
+
+  lifecycle {
+    precondition {
+      condition     = length(var.foundation_ecr_repository_arns) > 0
+      error_message = "enable_k3s_lab=true requires foundation_ecr_repository_arns from aws-dev-foundation output so the EC2 role can pull ECR images."
+    }
+
+    precondition {
+      condition     = var.enable_vpc
+      error_message = "enable_k3s_lab=true requires enable_vpc=true because the k3s lab needs a subnet."
+    }
+  }
 }

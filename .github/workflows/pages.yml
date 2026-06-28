@@ -7,6 +7,7 @@ on:
     paths:
       - "portfolio/**"
       - "frontend/**"
+      - "scripts/mode-a-pages/**"
       - ".nvmrc"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
@@ -47,7 +48,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Mode A Pages artifact
-        run: ./scripts/build-mode-a-pages.sh
+        run: ./scripts/mode-a-pages/build.sh
 
       - name: Configure Pages
         uses: actions/configure-pages@v6

@@ -61,7 +61,7 @@ ECR에 backend/frontend 이미지가 같은 commit SHA tag로 올라간 뒤, k3s
 스크립트를 실행합니다.
 
 ```bash
-IMAGE_TAG=<commit-sha> ./scripts/deploy-mode-b-lite-k3s.sh
+IMAGE_TAG=<commit-sha> ./scripts/mode-b-lite/deploy-k3s.sh
 ```
 
 이 스크립트는 다음을 수행합니다.
@@ -78,7 +78,7 @@ IMAGE_TAG=<commit-sha> ./scripts/deploy-mode-b-lite-k3s.sh
 그 다음 노트북의 repository 루트에서 SSM 터널을 엽니다.
 
 ```bash
-AWS_PROFILE=opspilot-lab ./scripts/start-mode-b-lite-tunnel.sh
+AWS_PROFILE=opspilot-lab ./scripts/mode-b-lite/start-tunnel.sh
 ```
 
 터널이 열려 있는 동안 `http://127.0.0.1:8080`에서 Mode B Lite live 화면을 볼 수 있습니다.

@@ -5,8 +5,7 @@ on:
     paths:
       - "infra/terraform/**"
       - "deploy/helm/**"
-      - "scripts/deploy-mode-b-lite-k3s.sh"
-      - "scripts/start-mode-b-lite-tunnel.sh"
+      - "scripts/**"
       - ".github/workflows/infra-check.yml"
   workflow_dispatch:
 
@@ -21,6 +20,7 @@ jobs:
       matrix:
         environment:
           - bootstrap-cost-guard
+          - aws-dev-foundation
           - aws-dev-ephemeral
     steps:
       - name: Checkout
@@ -62,7 +62,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate Mode B Lite scripts
+      - name: Validate shell scripts
         run: |
-          bash -n scripts/deploy-mode-b-lite-k3s.sh
-          bash -n scripts/start-mode-b-lite-tunnel.sh
+          for script in $(find scripts -name '*.sh' | sort); do
+            bash -n "$script"
+          done

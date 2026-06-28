@@ -14,7 +14,7 @@
 기본 앱을 배포합니다.
 
 ```bash
-./scripts/deploy-sample-app.sh
+./scripts/local-kind/deploy-sample-app.sh
 ```
 
 장애를 재현할 때는 원하는 overlay를 적용합니다.

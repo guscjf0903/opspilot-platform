@@ -1,11 +1,11 @@
 output "ecr_repository_urls" {
-  description = "ECR repository URLs keyed by repository name."
-  value       = var.enable_ecr ? module.ecr[0].repository_urls : {}
+  description = "Foundation ECR repository URLs keyed by repository name."
+  value       = var.foundation_ecr_repository_urls
 }
 
-output "github_actions_ecr_push_role_arn" {
-  description = "IAM role ARN to store in GitHub secret AWS_GITHUB_ACTIONS_ROLE_ARN."
-  value       = var.enable_github_actions_ecr_push_role && var.enable_ecr ? module.github_actions_ecr_push_role[0].role_arn : null
+output "ecr_repository_arns" {
+  description = "Foundation ECR repository ARNs keyed by repository name."
+  value       = var.foundation_ecr_repository_arns
 }
 
 output "vpc_id" {
@@ -28,6 +28,23 @@ output "expensive_feature_flags" {
     enable_msk         = var.enable_msk
     enable_nat_gateway = var.enable_nat_gateway
   }
+}
+
+output "eks" {
+  description = "Mode B EKS connection details. Null when disabled."
+  value = var.enable_eks && var.enable_vpc ? {
+    cluster_name              = module.eks_ephemeral[0].cluster_name
+    cluster_arn               = module.eks_ephemeral[0].cluster_arn
+    cluster_endpoint          = module.eks_ephemeral[0].cluster_endpoint
+    node_group_name           = module.eks_ephemeral[0].node_group_name
+    node_role_arn             = module.eks_ephemeral[0].node_role_arn
+    update_kubeconfig_command = module.eks_ephemeral[0].update_kubeconfig_command
+  } : null
+}
+
+output "eks_cluster_name" {
+  description = "Mode B EKS cluster name. Empty when disabled."
+  value       = var.enable_eks && var.enable_vpc ? module.eks_ephemeral[0].cluster_name : ""
 }
 
 output "k3s_lab" {

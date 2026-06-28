@@ -22,6 +22,7 @@ infra/
   terraform/
     envs/
       bootstrap-cost-guard/
+      aws-dev-foundation/
       aws-dev-ephemeral/
       aws-msk-proof/
     modules/
@@ -41,18 +42,34 @@ infra/
 | 경로 | 역할 |
 | --- | --- |
 | `terraform/envs/bootstrap-cost-guard` | AWS Budgets 월 비용 가드 |
-| `terraform/envs/aws-dev-ephemeral` | ECR과 NAT 없는 VPC-lite 기반의 짧은 AWS 데모 환경 |
+| `terraform/envs/aws-dev-foundation` | ECR repository와 GitHub Actions ECR push Role |
+| `terraform/envs/aws-dev-ephemeral` | NAT 없는 VPC-lite, 선택형 k3s lab, 향후 EKS용 짧은 AWS 데모 환경 |
 | `terraform/modules/budget` | 예산 알림 생성 모듈 |
 | `terraform/modules/ecr` | 백엔드와 프론트엔드 image용 private ECR repository |
 | `terraform/modules/github-actions-ecr-push-role` | GitHub OIDC 기반 ECR push 전용 IAM Role |
 | `terraform/modules/vpc-lite` | NAT Gateway 없는 2 AZ public subnet VPC |
 | `terraform/modules/ec2-k3s-lab` | Mode B Lite용 단일 EC2 + k3s live demo 환경 |
+| `terraform/modules/eks-ephemeral` | Mode B용 EKS cluster와 managed node group |
 
-`aws-dev-ephemeral`은 실제 EKS 데모를 위한 짧은 실행 환경입니다. 현재는 비용이 커질 수
-있는 EKS, ALB, RDS, MSK, NAT Gateway를 만들지 않고 ECR, VPC foundation, 선택형 k3s lab을 정의합니다.
+`aws-dev-foundation`은 평소 유지해도 되는 ECR과 GitHub Actions ECR push Role만 관리합니다.
 GitHub Actions용 IAM Role은 AWS access key 없이 ECR push만 허용하며, Terraform apply나
 EKS 생성 권한은 부여하지 않습니다.
+
+`aws-dev-ephemeral`은 실제 EKS 데모를 위한 짧은 실행 환경입니다. 현재는 VPC foundation,
+선택형 k3s lab, 선택형 EKS cluster와 managed node group을 정의합니다. ALB, RDS, MSK,
+NAT Gateway는 아직 만들지 않습니다. k3s lab이 ECR image를 pull하려면
+`aws-dev-foundation` output의 `foundation_ecr_repository_arns`를 입력으로 넘깁니다.
 `aws-msk-proof`는 Amazon MSK 연동 증명이 꼭 필요할 때만 별도로 사용합니다.
+
+Mode B EKS 구현 전에는 전략 B로 Terraform 경계를 나눕니다.
+
+| 목표 경로 | 역할 | 비용 정책 |
+| --- | --- | --- |
+| `terraform/envs/aws-dev-foundation` | ECR repository, GitHub Actions ECR push Role | IAM은 비용 없음, ECR 이미지는 저장 비용 가능 |
+| `terraform/envs/aws-dev-ephemeral` | VPC, EKS, managed node group, optional ALB/RDS | 사용할 때만 apply, 끝나면 destroy |
+
+이 분리는 EKS 실습 환경을 삭제할 때 GitHub Actions Role과 ECR repository까지 함께 삭제되는
+것을 막기 위한 경계입니다.
 
 ## Mode B Lite 비용 발생 지점
 
@@ -78,9 +95,9 @@ Mode B Lite 접속 흐름:
 Terraform apply
   -> EC2 + k3s 생성
   -> SSM으로 EC2 접속
-  -> scripts/deploy-mode-b-lite-k3s.sh 실행
+  -> scripts/mode-b-lite/deploy-k3s.sh 실행
   -> EC2 내부 127.0.0.1:8080에 frontend port-forward
-  -> 노트북에서 scripts/start-mode-b-lite-tunnel.sh 실행
+  -> 노트북에서 scripts/mode-b-lite/start-tunnel.sh 실행
   -> http://127.0.0.1:8080 접속
 ```
 
@@ -93,16 +110,18 @@ Mode 구분:
 | --- | --- | --- |
 | Mode A | 없음 | GitHub Pages fixture demo |
 | Mode B Lite | `enable_k3s_lab=true` | EC2 안의 k3s |
-| Mode B | `enable_eks=true` 예정 | Amazon EKS |
+| Mode B | `aws-dev-foundation` + `aws-dev-ephemeral` 예정 | Amazon EKS |
 | Mode C | `enable_msk=true` 예정 | MSK 연동 proof |
 
 ## 검증 명령
 
 ```bash
 terraform -chdir=infra/terraform/envs/bootstrap-cost-guard init -backend=false
+terraform -chdir=infra/terraform/envs/aws-dev-foundation init -backend=false
 terraform -chdir=infra/terraform/envs/aws-dev-ephemeral init -backend=false
 terraform fmt -recursive
 terraform -chdir=infra/terraform/envs/bootstrap-cost-guard validate
+terraform -chdir=infra/terraform/envs/aws-dev-foundation validate
 terraform -chdir=infra/terraform/envs/aws-dev-ephemeral validate
 tflint
 terraform plan
