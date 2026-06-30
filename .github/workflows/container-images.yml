@@ -15,7 +15,7 @@ on:
       frontend_api_base_url:
         description: "프론트엔드 이미지 빌드에 사용할 API base URL입니다."
         type: string
-        default: "/api"
+        default: "/"
       frontend_cluster_id:
         description: "프론트엔드 이미지 빌드에 사용할 기본 cluster id입니다."
         type: string
@@ -31,7 +31,7 @@ permissions:
 
 env:
   AWS_REGION: ap-northeast-2
-  FRONTEND_API_BASE_URL: ${{ github.event.inputs.frontend_api_base_url || '/api' }}
+  FRONTEND_API_BASE_URL: ${{ github.event.inputs.frontend_api_base_url || '/' }}
   FRONTEND_CLUSTER_ID: ${{ github.event.inputs.frontend_cluster_id || 'mode-b-eks' }}
   FRONTEND_CLUSTER_LABEL: ${{ github.event.inputs.frontend_cluster_label || 'Mode B EKS' }}
 

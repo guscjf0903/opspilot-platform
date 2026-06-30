@@ -9,7 +9,7 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-ARG VITE_API_BASE_URL=/api
+ARG VITE_API_BASE_URL=/
 ARG VITE_APP_ENV=aws-dev
 ARG VITE_CLUSTER_ID=local
 ARG VITE_CLUSTER_LABEL=local
