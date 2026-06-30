@@ -23,7 +23,7 @@ spec:
         - name: redpanda
           image: "{{ .Values.demoKafka.redpanda.image.repository }}:{{ .Values.demoKafka.redpanda.image.tag }}"
           imagePullPolicy: {{ .Values.demoKafka.redpanda.image.pullPolicy }}
-          command:
+          args:
             - redpanda
             - start
             - --smp
@@ -35,7 +35,6 @@ spec:
             - --overprovisioned
             - --node-id
             - "0"
-            - --check=false
             - --kafka-addr
             - PLAINTEXT://0.0.0.0:9092
             - --advertise-kafka-addr
@@ -127,7 +126,7 @@ spec:
               i=0
               while true; do
                 i=$((i + 1))
-                printf '{"orderId":"mode-b-lite-%s","createdAt":"%s"}\n' "$i" "$(date -Iseconds)" |
+                printf '{"orderId":"{{ .Values.demoKafka.messagePrefix }}-%s","createdAt":"%s"}\n' "$i" "$(date -Iseconds)" |
                   rpk topic produce "$TOPIC" -X brokers="$BROKERS"
                 sleep {{ .Values.demoKafka.producer.intervalSeconds }}
               done

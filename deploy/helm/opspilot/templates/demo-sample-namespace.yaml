@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.demoSampleApp.namespace }}
   labels:
     app.kubernetes.io/part-of: opspilot-demo
-    opspilot.io/demo-mode: mode-b-lite
+    opspilot.io/demo-mode: {{ .Values.demoModeLabel | quote }}
 {{- end }}
 {{- if and .Values.demoKafka.enabled (or (not .Values.demoSampleApp.enabled) (ne .Values.demoKafka.namespace .Values.demoSampleApp.namespace)) }}
 ---
@@ -15,5 +15,5 @@ metadata:
   name: {{ .Values.demoKafka.namespace }}
   labels:
     app.kubernetes.io/part-of: opspilot-demo
-    opspilot.io/demo-mode: mode-b-lite
+    opspilot.io/demo-mode: {{ .Values.demoModeLabel | quote }}
 {{- end }}

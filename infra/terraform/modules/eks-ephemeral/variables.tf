@@ -19,6 +19,16 @@ variable "public_subnet_ids" {
   }
 }
 
+variable "public_subnet_id_map" {
+  description = "Public subnet IDs keyed by a stable name such as availability zone. Keys must be known during plan."
+  type        = map(string)
+
+  validation {
+    condition     = length(var.public_subnet_id_map) >= 2
+    error_message = "At least two public subnets are required for EKS."
+  }
+}
+
 variable "endpoint_public_access" {
   description = "Whether the EKS API endpoint is reachable from the public internet."
   type        = bool
@@ -56,7 +66,7 @@ variable "node_group_instance_types" {
 variable "node_group_ami_type" {
   description = "AMI type for the managed node group."
   type        = string
-  default     = "AL2_x86_64"
+  default     = "AL2023_x86_64_STANDARD"
 }
 
 variable "node_group_capacity_type" {

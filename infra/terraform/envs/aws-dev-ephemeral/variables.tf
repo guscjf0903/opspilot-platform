@@ -114,7 +114,7 @@ variable "eks_node_group_instance_types" {
 variable "eks_node_group_ami_type" {
   description = "AMI type for the EKS managed node group."
   type        = string
-  default     = "AL2_x86_64"
+  default     = "AL2023_x86_64_STANDARD"
 }
 
 variable "eks_node_group_capacity_type" {

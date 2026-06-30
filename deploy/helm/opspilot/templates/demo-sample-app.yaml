@@ -106,7 +106,7 @@ spec:
           image: "{{ .Values.demoSampleApp.worker.image.repository }}:{{ .Values.demoSampleApp.worker.image.tag }}"
           imagePullPolicy: {{ .Values.demoSampleApp.worker.image.pullPolicy }}
           {{- if .Values.demoSampleApp.worker.crashLoop }}
-          command: ["sh", "-c", "echo 'simulated worker crash for OpsPilot Mode B Lite' >&2; exit 1"]
+          command: ["sh", "-c", "echo 'simulated worker crash for OpsPilot {{ .Values.demoModeLabel }}' >&2; exit 1"]
           {{- else }}
           command: ["sh", "-c", "while true; do sleep 3600; done"]
           {{- end }}

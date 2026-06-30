@@ -5,6 +5,19 @@ commonLabels: {}
 
 imagePullSecrets: []
 
+demoModeLabel: local
+
+tests:
+  enabled: true
+  image:
+    repository: curlimages/curl
+    tag: "8.11.1"
+    pullPolicy: IfNotPresent
+  observability:
+    enabled: false
+    prometheusUrl: http://prometheus.monitoring.svc.cluster.local:9090/-/ready
+    openCostUrl: http://opencost.opencost.svc.cluster.local:9003/healthz
+
 demoPostgresql:
   enabled: false
   image:
@@ -87,6 +100,7 @@ demoKafka:
   enabled: false
   namespace: sample-app
   topic: orders.created
+  messagePrefix: local
   consumerGroup: order-consumer
   brokers: redpanda.sample-app.svc.cluster.local:9092
   redpanda:
@@ -147,6 +161,9 @@ backend:
   podAnnotations: {}
   podSecurityContext:
     runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
   securityContext:
     allowPrivilegeEscalation: false
     capabilities:
@@ -157,7 +174,7 @@ backend:
     AI_PROVIDER: stub
     DB_URL: jdbc:postgresql://opspilot-postgresql:5432/opspilot
     DB_USERNAME: opspilot
-    PROMETHEUS_BASE_URL: http://prometheus-server.monitoring.svc.cluster.local
+    PROMETHEUS_BASE_URL: http://prometheus.monitoring.svc.cluster.local:9090
     KAFKA_BOOTSTRAP_SERVERS: redpanda.sample-app.svc.cluster.local:9092
     OPENCOST_BASE_URL: http://opencost.opencost.svc.cluster.local:9003
   secretEnv:

@@ -1,5 +1,7 @@
 fullnameOverride: opspilot
 
+demoModeLabel: mode-b-lite
+
 backend:
   image:
     repository: 820932217235.dkr.ecr.ap-northeast-2.amazonaws.com/opspilot-backend
@@ -14,7 +16,7 @@ backend:
     KUBERNETES_DISPLAY_NAME: Mode B Lite k3s
     KUBERNETES_PROVIDER: k3s
     OPSPILOT_ACTIONS_EXECUTION_ENABLED: "false"
-    PROMETHEUS_BASE_URL: http://prometheus-server.monitoring.svc.cluster.local
+    PROMETHEUS_BASE_URL: http://prometheus.monitoring.svc.cluster.local:9090
     KAFKA_BOOTSTRAP_SERVERS: redpanda.sample-app.svc.cluster.local:9092
     OPSPILOT_KAFKA_WARNING_LAG_THRESHOLD: "10"
     OPSPILOT_KAFKA_CRITICAL_LAG_THRESHOLD: "50"
@@ -43,6 +45,7 @@ demoSampleApp:
 
 demoKafka:
   enabled: true
+  messagePrefix: mode-b-lite
 
 ingress:
   enabled: false

@@ -85,7 +85,7 @@ resource "aws_iam_role_policy_attachment" "node_ecr" {
 }
 
 resource "aws_ec2_tag" "public_subnet_cluster" {
-  for_each = toset(var.public_subnet_ids)
+  for_each = var.public_subnet_id_map
 
   resource_id = each.value
   key         = "kubernetes.io/cluster/${var.cluster_name}"
@@ -93,7 +93,7 @@ resource "aws_ec2_tag" "public_subnet_cluster" {
 }
 
 resource "aws_ec2_tag" "public_subnet_elb" {
-  for_each = toset(var.public_subnet_ids)
+  for_each = var.public_subnet_id_map
 
   resource_id = each.value
   key         = "kubernetes.io/role/elb"

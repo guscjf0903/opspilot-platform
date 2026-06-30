@@ -32,7 +32,6 @@ services:
       - 0M
       - --node-id
       - "0"
-      - --check=false
       - --kafka-addr
       - internal://0.0.0.0:29092,external://0.0.0.0:9092,host://0.0.0.0:19092
       - --advertise-kafka-addr

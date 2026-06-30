@@ -7,7 +7,8 @@ Helm chart를 둘 위치입니다.
 
 - `values.yaml`은 안전하고 저비용인 기본값만 가집니다.
 - `values-local-kind.yaml`은 로컬 kind 검증용입니다.
-- `values-aws-dev-ephemeral.yaml`은 Mode B Lite k3s lab과 이후 AWS EKS 데모에서 재사용하는 AWS 개발용 값입니다.
+- `values-aws-dev-ephemeral.yaml`은 Mode B Lite k3s lab용 AWS 개발 값입니다.
+- `values-aws-dev-eks.yaml`은 Mode B EKS ephemeral lab용 AWS 개발 값입니다.
 - public ingress는 기본적으로 꺼둡니다.
 - 외부 방문자용 demo에서는 action API를 비활성화하거나 Viewer 권한만 허용합니다.
 - Secret 값은 values 파일에 직접 넣지 않고 Kubernetes Secret 또는 AWS Secrets Manager 참조로 주입합니다.
@@ -20,6 +21,7 @@ opspilot/
   values.yaml
   values-local-kind.yaml
   values-aws-dev-ephemeral.yaml
+  values-aws-dev-eks.yaml
   templates/
 ```
 
@@ -34,6 +36,10 @@ opspilot/
 - optional read-only ClusterRole, ClusterRoleBinding
 - optional Ingress
 
+OpenCost 자체는 `opspilot` chart에 포함하지 않는다. Mode B EKS에서는
+`deploy/helm/opencost/values-aws-dev-eks.yaml`을 사용해 OpenCost upstream Helm chart를
+별도로 설치한다.
+
 기본값:
 
 - backend/frontend replica는 각각 1개
@@ -47,6 +53,8 @@ opspilot/
 - `values-aws-dev-ephemeral.yaml`은 Secret list를 제외한 Kubernetes read-only RBAC를 활성화
 - `values-aws-dev-ephemeral.yaml`은 sample-app과 Redpanda Kafka demo를 활성화
 - EKS, ALB, RDS, MSK, NAT Gateway는 생성하지 않음
+- `values-aws-dev-eks.yaml`은 같은 demo workload를 EKS provider/display 값으로 배포
+- `values-aws-dev-eks.yaml`도 ALB, RDS, MSK, NAT Gateway를 사용하지 않음
 
 `values-aws-dev-ephemeral.yaml`의 image repository는 Terraform으로 만든 ECR repository를
 가리킵니다. tag는 GitHub Actions가 ECR에 이미지를 push한 commit SHA로 교체해서
@@ -56,14 +64,22 @@ opspilot/
 
 ```bash
 helm lint deploy/helm/opspilot
+kubectl kustomize local/prometheus
 helm template opspilot deploy/helm/opspilot -f deploy/helm/opspilot/values-local-kind.yaml
 helm template opspilot deploy/helm/opspilot -f deploy/helm/opspilot/values-aws-dev-ephemeral.yaml
+helm template opspilot deploy/helm/opspilot -f deploy/helm/opspilot/values-aws-dev-eks.yaml
 ```
 
 Ingress manifest까지 확인하려면 아래처럼 렌더링합니다.
 
 ```bash
 helm template opspilot deploy/helm/opspilot -f deploy/helm/opspilot/values-aws-dev-ephemeral.yaml --set ingress.enabled=true
+```
+
+EKS values에서도 Ingress manifest만 확인하려면 아래처럼 렌더링합니다.
+
+```bash
+helm template opspilot deploy/helm/opspilot -f deploy/helm/opspilot/values-aws-dev-eks.yaml --set ingress.enabled=true
 ```
 
 ## 적용 예시
@@ -89,6 +105,19 @@ port-forward까지 함께 처리합니다.
 
 ```bash
 AWS_PROFILE=opspilot-lab ./scripts/mode-b-lite/start-tunnel.sh
+```
+
+Mode B EKS lab에서는 로컬 kubeconfig가 EKS context를 가리키는 상태에서 아래 스크립트를
+사용합니다. EKS worker node role에 ECR read 권한이 있으므로 기본적으로 image pull Secret은
+만들지 않습니다.
+
+```bash
+AWS_PROFILE=opspilot-lab ./scripts/mode-b-eks/deploy-observability.sh
+AWS_PROFILE=opspilot-lab IMAGE_TAG=<commit-sha> ./scripts/mode-b-eks/deploy.sh
+./scripts/mode-b-eks/verify-observability.sh
+./scripts/mode-b-eks/verify.sh
+./scripts/mode-b-eks/helm-test.sh
+./scripts/mode-b-eks/port-forward.sh
 ```
 
 Secret topology는 Kubernetes Secret API를 직접 list하지 않고 Pod spec의 Secret 참조에서

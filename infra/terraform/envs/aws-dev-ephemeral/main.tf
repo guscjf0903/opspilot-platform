@@ -57,6 +57,7 @@ module "eks_ephemeral" {
   cluster_name                 = local.eks_cluster_name
   kubernetes_version           = var.eks_kubernetes_version
   public_subnet_ids            = module.vpc_lite[0].public_subnet_ids
+  public_subnet_id_map         = module.vpc_lite[0].public_subnet_id_by_az
   endpoint_public_access       = var.eks_endpoint_public_access
   endpoint_private_access      = var.eks_endpoint_private_access
   endpoint_public_access_cidrs = var.eks_endpoint_public_access_cidrs
