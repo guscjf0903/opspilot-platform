@@ -1,0 +1,61 @@
+fullnameOverride: opspilot
+
+commonLabels:
+  opspilot.io/mode: mode-b-eks
+
+demoModeLabel: mode-b-eks
+
+tests:
+  observability:
+    enabled: true
+
+backend:
+  image:
+    repository: 820932217235.dkr.ecr.ap-northeast-2.amazonaws.com/opspilot-backend
+    tag: SET_BY_CI_COMMIT_SHA
+    pullPolicy: IfNotPresent
+  env:
+    SPRING_PROFILES_ACTIVE: aws-dev
+    AI_PROVIDER: stub
+    DB_URL: jdbc:postgresql://opspilot-postgresql:5432/opspilot
+    DB_USERNAME: opspilot
+    KUBERNETES_CLUSTER_ID: mode-b-eks
+    KUBERNETES_DISPLAY_NAME: Mode B EKS
+    KUBERNETES_PROVIDER: eks
+    OPSPILOT_ACTIONS_EXECUTION_ENABLED: "false"
+    PROMETHEUS_BASE_URL: http://prometheus.monitoring.svc.cluster.local:9090
+    OPSPILOT_KAFKA_ENABLED: "false"
+    OPSPILOT_KAFKA_MODE: fake
+    KAFKA_BOOTSTRAP_SERVERS: disabled.kafka.local:9092
+    OPSPILOT_KAFKA_WARNING_LAG_THRESHOLD: "10"
+    OPSPILOT_KAFKA_CRITICAL_LAG_THRESHOLD: "50"
+    OPENCOST_BASE_URL: http://opencost.opencost.svc.cluster.local:9003
+
+frontend:
+  image:
+    repository: 820932217235.dkr.ecr.ap-northeast-2.amazonaws.com/opspilot-frontend
+    tag: SET_BY_CI_COMMIT_SHA
+    pullPolicy: IfNotPresent
+
+demoPostgresql:
+  enabled: true
+
+kubernetesReadOnlyRbac:
+  enabled: true
+
+demoSampleApp:
+  enabled: true
+  paymentApi:
+    replicas: 1
+    readinessPath: /missing-health
+  worker:
+    crashLoop: true
+  unusedPvc:
+    enabled: true
+
+demoKafka:
+  enabled: false
+  messagePrefix: mode-b-eks
+
+ingress:
+  enabled: false

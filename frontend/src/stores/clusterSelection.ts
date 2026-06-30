@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useClusterSelectionStore = defineStore('cluster-selection', () => {
-  const clusterId = ref('local')
+  const clusterId = ref(import.meta.env.VITE_CLUSTER_ID || 'local')
   const namespace = ref('sample-app')
   const dashboardNamespace = ref('')
   const topologyNamespace = ref('sample-app')

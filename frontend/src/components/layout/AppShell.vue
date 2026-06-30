@@ -7,8 +7,17 @@ const uiPreferences = useUiPreferencesStore()
 const { locale, theme } = storeToRefs(uiPreferences)
 const { setLocale, setTheme, t } = uiPreferences
 const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true'
-const environmentLabel = computed(() => isDemoMode ? '데모 스냅샷' : t('shell.localProfile'))
-const clusterLabel = computed(() => isDemoMode ? 'demo-snapshot' : 'local-kind')
+const appEnvironment = import.meta.env.VITE_APP_ENV || 'local'
+const configuredClusterId = import.meta.env.VITE_CLUSTER_ID || 'local'
+const configuredClusterLabel = import.meta.env.VITE_CLUSTER_LABEL || configuredClusterId
+const environmentLabel = computed(() => {
+  if (isDemoMode) {
+    return '데모 스냅샷'
+  }
+
+  return appEnvironment === 'local' ? t('shell.localProfile') : appEnvironment
+})
+const clusterLabel = computed(() => isDemoMode ? 'demo-snapshot' : configuredClusterLabel)
 
 const navigationItems = computed(() => [
   { label: t('navigation.dashboard'), to: '/' },
